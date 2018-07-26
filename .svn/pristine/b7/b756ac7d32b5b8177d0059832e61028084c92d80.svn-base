@@ -1,0 +1,47 @@
+package tds.um.test;
+
+import java.util.Collections;
+import java.util.LinkedList;
+
+import tds.um.modelo.Cancion;
+import tds.um.modelo.EstiloMusical;
+import tds.um.modelo.Interprete;
+import tds.um.modelo.ListaCanciones;
+import tds.um.persistencia.AdaptadorCancionTDS;
+import tds.um.persistencia.AdaptadorListaCancionesTDS;
+
+public class TestListaCancionesHibernate {
+	
+	static AdaptadorListaCancionesTDS lsDAO = new AdaptadorListaCancionesTDS();
+	static AdaptadorCancionTDS cDao = new AdaptadorCancionTDS();
+
+	public static void main(String[] args) {
+		Interprete i1 = new Interprete("Extremoduro");
+		Interprete i2 = new Interprete("Kase O");
+		Interprete i3 = new Interprete("Bad Bunny");
+
+		EstiloMusical em1 = new EstiloMusical(EstiloMusical.ROCK);
+		EstiloMusical em2 = new EstiloMusical(EstiloMusical.RAP);
+		EstiloMusical em3 = new EstiloMusical(EstiloMusical.TRAP);
+
+		Cancion c1 = new Cancion("Quemando tus recuerdos", "/rutaDeMisHuevos", em1, i1);
+		Cancion c2 = new Cancion("Pura droga sin cortar", "/rutaDeMisHuevos", em2, i2);
+		Cancion c3 = new Cancion("Hoy", "/rutaDeMisHuevos", em3, i3);
+
+		LinkedList<Cancion> lc_1 = new LinkedList<>();
+		Collections.addAll(lc_1, c1, c2);
+		ListaCanciones lc1 = new ListaCanciones("Why Trapping so Hard?", lc_1);
+		cDao.registrarCancion(c1);
+		cDao.registrarCancion(c2);
+		cDao.registrarCancion(c3);
+		lsDAO.registrarListaCanciones(lc1);
+		System.out.println(lsDAO.recuperarTodasListasCanciones());
+		lc_1.add(c3);
+		lc_1.remove(c1);
+		lsDAO.modificarListaCanciones(lc1);
+		System.out.println(lsDAO.recuperarTodasListasCanciones());
+
+
+		
+	}
+}

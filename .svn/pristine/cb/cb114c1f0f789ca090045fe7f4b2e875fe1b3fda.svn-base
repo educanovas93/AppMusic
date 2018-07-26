@@ -1,0 +1,268 @@
+package tds.um.vista.manejador;
+
+import java.awt.Desktop;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.ResourceBundle;
+
+import javax.imageio.ImageIO;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.json.JsonException;
+import org.openqa.selenium.support.ui.Sleeper;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXTextField;
+import com.restfb.DefaultFacebookClient;
+import com.restfb.FacebookClient;
+import com.restfb.Version;
+import com.restfb.WebRequestor.Response;
+import com.restfb.types.User;
+
+import insidefx.undecorator.UndecoratorScene;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
+import javafx.stage.WindowEvent;
+import javafx.util.Duration;
+import tds.um.controlador.AppMusic;
+import tds.um.persistencia.AdapatadorUsuarioTDS;
+
+public class LoginController implements Initializable {
+	
+	@FXML
+	private StackPane panel;
+	@FXML
+	private JFXTextField usuario;
+	@FXML
+	private JFXPasswordField password;
+	
+	@FXML
+	private JFXButton botonLogin;
+	
+	@FXML
+	private JFXButton botonFacebook;
+
+	@FXML
+	private JFXButton botonRegistrate;
+	
+	@FXML
+	private ImageView fondo1;
+	
+	@FXML
+	private Label usuarioIncorrecto;
+	
+	@FXML
+	private Label passwordIncorrecta;
+	
+
+	static AdapatadorUsuarioTDS uDAO = new AdapatadorUsuarioTDS(); 
+
+	AppMusic controlador = AppMusic.getUnicaInstancia();
+	public void initialize(URL location, ResourceBundle resources) {
+		// TODO Auto-generated method stub		
+			
+	}
+	private void goToInterfaz(ActionEvent event) throws IOException{
+		/*
+		Parent root = FXMLLoader.load(getClass().getResource("/tds/um/vista/fxml/interfaz.fxml"));
+        Scene scene = new Scene(root);
+        Stage appStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        appStage.setScene(scene);
+        appStage.show();
+        */
+		
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/tds/um/vista/fxml/interfaz.fxml"));
+        //fxmlLoader.setController(this);
+        Region root = (Region) fxmlLoader.load();   
+        
+        
+        Stage lastStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        lastStage.hide();
+        Stage appStage = new Stage();  
+        // The Undecorator as a Scene
+        final UndecoratorScene undecoratorScene = new UndecoratorScene(appStage, root);        
+        // Enable fade transition
+        undecoratorScene.setFadeInTransition();
+        appStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent we) {
+                we.consume();   // Do not hide yet
+                undecoratorScene.setFadeOutTransition();
+            }
+        });
+        undecoratorScene.setFill(Color.TRANSPARENT);
+        undecoratorScene.getStylesheets().add(getClass().getResource("/tds/um/vista/fxml/contextmenu.css").toString());
+        appStage.initStyle(StageStyle.TRANSPARENT);
+        
+        appStage.setMinWidth(1024);
+        appStage.setMinHeight(576);
+        appStage.setWidth(1152);
+		appStage.setHeight(648);
+        appStage.setScene(undecoratorScene);
+        //appStage.setResizable(false);
+        appStage.toFront();
+        appStage.show();      
+	}
+	
+	
+	public void tryLog(ActionEvent event) throws IOException {
+		System.out.println("Usted se ha logueado " + "con usuario : " + this.usuario.getText() + " y contraseña : "
+				+ this.password.getText());
+		
+		
+		if(!AppMusic.getUnicaInstancia().loginUsuario(this.usuario.getText(), this.password.getText())){
+			this.usuarioIncorrecto.setVisible(true);
+			this.passwordIncorrecta.setVisible(true);
+		}
+		
+		if (true) {
+			Timeline timeline = new Timeline(new KeyFrame(
+			        Duration.millis(300),			        
+	           		ae -> {
+						try {
+							goToInterfaz(event);
+						} catch (IOException e) {						
+							e.printStackTrace();
+						}
+            
+						}));
+			timeline.play();            
+	        }
+	 }
+	
+	public void loginFacebook(ActionEvent event) throws IOException, URISyntaxException{
+
+			Timeline timeline = new Timeline(new KeyFrame(
+			        Duration.millis(300),			        
+	           		ae -> {
+						String domain = "https://www.facebook.com/";
+						String appId = "114629375984771";					
+						String authUrl = "https://graph.facebook.com/oauth/authorize?type=user_agent&client_id="+appId+"&redirect_uri="+domain+"&scope=user_birthday,email";
+						
+						
+						if(System.getProperty("os.name").contains("Windows")) {
+							System.setProperty("webdriver.chrome.driver","chromedriver.exe");
+						}else {
+							System.setProperty("webdriver.chrome.driver","chromedriver");
+						}
+						
+								
+						WebDriver driver = new ChromeDriver();
+				        
+						driver.get(authUrl);
+						String accessToken;
+						
+												
+						while(!driver.getCurrentUrl().contains("#access_token")) {
+												
+						}
+						
+						String url = driver.getCurrentUrl();
+						accessToken = url.replaceAll(".*#access_token=(.+)&.*&.*","$1");
+						System.out.println(accessToken);
+						FacebookClient fbClient = new DefaultFacebookClient(accessToken,Version.VERSION_2_5);
+						
+						User user = fbClient.fetchObject("me", User.class);
+						//usaremos como user login
+						System.out.println("Nombre FB : "+user.getName());
+						//usaremos id como id de user
+						// y access token como contraseña
+						System.out.println("ID FB : "+user.getId());
+						System.out.println("Access token(contrase�a) : "+accessToken);
+
+						controlador.login(user.getName(),user.getId());
+						//controlador.login(this.usuario.getText(),"password");
+						controlador.loginFB(user.getName());
+
+						//controlador.login(user.getName(),user.getId());
+						AppMusic.getUnicaInstancia().loginUsuario(this.usuario.getText(),"password");
+						AppMusic.getUnicaInstancia().loginFB(user.getName());
+
+						
+
+						String auxUrl = "https://graph.facebook.com/v2.12/"+user.getId()+"/picture?&access_token="+accessToken;
+						System.out.println(auxUrl);
+						//La url de la imagen de facebook hace redirect por lo tanto tenemos que burlar ese redirect para coger la imagen original
+						HttpURLConnection con;
+						try {
+							con = (HttpURLConnection) new URL(auxUrl).openConnection();
+							con.setInstanceFollowRedirects(false);
+							con.connect();
+							String realURL = con.getHeaderField("Location").toString(); 
+							
+							
+							//String imageUrl = "https://graph.facebook.com/v2.12/"+user.getId()+"/picture?redirect=false&access_token="+accessToken;
+							System.out.println("la url real de la imagen es : "+realURL);
+							AppMusic.getUnicaInstancia().cambiarAvatar(realURL);									
+							driver.quit();
+							goToInterfaz(event);
+						} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+						}				
+            
+						}));
+			timeline.play();            
+	        
+			
+	}
+	
+	
+	public void registrate(ActionEvent event) throws IOException{
+		   
+		   Timeline timeline = new Timeline(new KeyFrame(
+			        Duration.millis(200),
+			        
+	           		ae -> {
+						try {
+							FXMLLoader loader = new FXMLLoader(getClass().getResource("/tds/um/vista/fxml/registrate.fxml"));														
+				            Parent parent = loader.load();
+				            Window window = panel.getScene().getWindow();
+				            ((Stage)panel.getScene().getWindow()).setScene(new Scene(parent,798,463));
+				            
+						} catch (IOException e) {					
+							e.printStackTrace();
+						}
+					}));
+			timeline.play();				
+	}
+}

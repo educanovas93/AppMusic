@@ -1,0 +1,22 @@
+package tds.um.modelo;
+
+public class DescuentoFijo extends Descuento {
+
+	private static final long serialVersionUID = 1L;
+
+	private static final float DESCUENTO_FIJO = (float) 0.25;
+
+	public DescuentoFijo() {
+		this.tipoDescuento = "DescuentoFijo";
+	}
+
+	public String calcularPrecio(float precioApp) {
+		return "Precio a pagar con el tipo de descuento " + this.tipoDescuento + " :" + (precioApp * DESCUENTO_FIJO);
+	}
+
+	@Override
+	public String toString() {
+		return "DescuentoFijo";
+	}
+
+}

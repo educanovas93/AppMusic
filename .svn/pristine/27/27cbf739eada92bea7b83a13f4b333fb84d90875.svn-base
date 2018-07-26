@@ -1,0 +1,61 @@
+package tds.um.componente;
+
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+
+public class BuscadorCanciones implements Serializable,IBuscadorCanciones {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4044351130512960897L;
+
+
+	private Canciones archivo;
+	
+	
+	private List<CancionesListener> listaListeners;
+	
+	
+	public BuscadorCanciones() {
+		listaListeners = new LinkedList<>();
+		archivo = new Canciones();
+	}
+	
+
+	
+	@Override
+	public void buscarCanciones(String xml) {
+		setArchivo(xml);
+	}
+	
+	
+	public Canciones getArchivo() {
+		return this.archivo;
+	}
+	
+	public void setArchivo(String xml) {
+		Canciones oldValue = this.archivo;
+		archivo = CargadorCanciones.cargarCanciones(xml);
+		if(!oldValue.equals(archivo)) {
+			CancionesEvento evento = new CancionesEvento(oldValue,archivo);
+			notificarListeners(evento);
+		}
+	}
+	
+	protected void notificarListeners(CancionesEvento evento) {
+		for (CancionesListener listener : this.listaListeners) {
+			listener.nuevasCanciones(evento);
+		}
+	}
+	
+	public synchronized void addCancionesListener(CancionesListener listener) {
+		this.listaListeners.add(listener);
+	}
+	
+	public synchronized void removeCancionesListener(CancionesListener listener) {
+		this.listaListeners.remove(listener);
+	}
+	
+}

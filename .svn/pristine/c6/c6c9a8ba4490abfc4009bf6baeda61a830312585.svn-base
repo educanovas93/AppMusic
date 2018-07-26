@@ -1,0 +1,19 @@
+package tds.um.componente;
+
+import java.util.EventObject;
+
+public class CancionesEvento extends EventObject {
+	
+	private static final long serialVersionUID = 5635221105759581845L;
+	protected Canciones canciones;
+	
+	public CancionesEvento(Object s, Canciones canciones) {
+		super(s);
+		this.canciones = canciones;
+	}
+
+	
+	public Canciones getCanciones() {
+		return canciones;
+	}
+}

@@ -1,0 +1,50 @@
+package tds.um.test;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.Test;
+
+import tds.um.modelo.Cancion;
+import tds.um.modelo.Interprete;
+
+public class TestCancion {
+	
+	static Cancion cancion;
+
+	@BeforeClass
+	public static void before() {
+		 cancion = new Cancion("titulo","ruta","estilo",new Interprete("interprete"));
+	}
+	
+	
+	@Test
+	public void testGet() {
+		assertEquals("test getTitulo","titulo",cancion.getTitulo());
+		assertEquals("test getRutaFichero","ruta",cancion.getRutaFichero());
+		assertEquals("test getEstilo","estilo",cancion.getEstiloMusical());
+		assertEquals("test getInterprete","interprete",cancion.getInterprete().getNombre());
+	}
+	
+	
+	
+	@Test
+	public void testSet() {
+		Cancion ctest = cancion;
+		
+		cancion.setTitulo("nuevoTitulo");
+		cancion.setRutaFichero("nuevaRuta");
+		cancion.setEstiloMusical("nuevoEstilo");
+		cancion.setInterprete(new Interprete("nuevoInterprete"));
+		
+		Cancion ctest1 = cancion;
+		assertNotEquals("test setTitulo",ctest1.getTitulo(),ctest.getTitulo());
+		assertNotEquals("test setRutaFichero",ctest1.getRutaFichero(),ctest.getRutaFichero());
+		assertNotEquals("test setEstilo",ctest1.getRutaFichero(),ctest.getRutaFichero());
+		assertNotEquals("test setInterprete",ctest1.getInterprete().getNombre(),ctest.getInterprete().getNombre());
+		
+		
+		
+	}
+}

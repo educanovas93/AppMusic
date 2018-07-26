@@ -1,0 +1,104 @@
+package tds.um.modelo;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import tds.um.persistencia.DAOException;
+import tds.um.persistencia.FactoriaDAO;
+
+public class CatalogoCanciones {
+
+	private Map<String, Cancion> canciones;
+	private Set<String> estilos;
+	private static CatalogoCanciones unicaInstancia;
+	
+	public static CatalogoCanciones getUnicaInstancia() {
+		if(unicaInstancia == null) {
+			unicaInstancia = new CatalogoCanciones();
+		}
+		return unicaInstancia;
+	}
+
+	private FactoriaDAO factoriaDao;
+
+	private CatalogoCanciones() {
+		this.estilos = new HashSet<>();
+		this.estilos.add("");
+		canciones = new HashMap<String, Cancion>();
+
+		try {
+			factoriaDao = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
+			List<Cancion> canciones = (List<Cancion>) factoriaDao.getCancionDAO().recuperarTodasCanciones();
+			for (Cancion cancion : canciones) {
+				this.canciones.put(cancion.getTitulo(), cancion);
+			}
+		} catch (DAOException eDAO) {
+			eDAO.printStackTrace();
+		}
+		for (Cancion cancion : this.canciones.values()) {
+			addEstilo(cancion.getEstiloMusical());
+		}
+	}
+
+	public List<Cancion> getCanciones() {
+		return new ArrayList<Cancion>(this.canciones.values());
+		
+	}
+	
+	
+	public List<Cancion> getMasReproducidas(){
+		Comparator<Cancion> byNRep = (Cancion o1, Cancion o2)->Integer.compare(o2.getNumReproduciones(),o1.getNumReproduciones());
+		ArrayList<Cancion> aux = new ArrayList<>(getCanciones());
+		aux.sort(byNRep);
+		return aux.stream().limit(10).collect(Collectors.toList());
+	}
+	
+	public Cancion getCancion(int codigo) {
+		for (Cancion cancion : canciones.values()) {
+			if (cancion.getId() == codigo)
+				return cancion;
+		}
+		return null;
+	}
+
+	public void addCancion(Cancion cancion) {
+		canciones.put(cancion.getTitulo(),cancion);
+		addEstilo(cancion.getEstiloMusical());
+	}
+	
+	public void remove(Cancion cancion) {
+		canciones.remove(cancion.getTitulo());
+	}
+	
+	public void addCancionesCatalogo(List<Cancion> cancion) {
+		for (Cancion can : cancion) {
+			addCancion(can);
+		}
+	}
+	//filtro con streams en una línea
+	public List<Cancion> busquedaCanciones(String titulo,String interprete,String estiloMusical){
+		return getCanciones().stream().filter(c -> c.getTitulo().toLowerCase().contains(titulo.toLowerCase()))
+		.filter(c -> c.getInterprete().getNombre().toLowerCase().contains(interprete.toLowerCase()))
+		.filter(c -> c.getEstiloMusical().toLowerCase().contains(estiloMusical.toLowerCase())).collect(Collectors.toList());
+	}
+	
+	public boolean contieneCancion(Cancion cancion) {
+		return this.canciones.containsValue(cancion);
+	}
+		
+	public void addEstilo(String estilo) {	
+		this.estilos.add(estilo.toUpperCase());
+	}
+	public Set<String> getEstilos(){
+		return Collections.unmodifiableSet(estilos);
+	}
+
+}

@@ -1,0 +1,22 @@
+package tds.um.modelo;
+
+public class DescuentoJovenes extends Descuento {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private static final float DESCUENTO_JOVENES = (float) 0.25;
+
+	public DescuentoJovenes() {
+		this.tipoDescuento = "DescuentoJovenes";
+	}
+
+	public String calcularPrecio(float precioApp) {
+		return "Precio a pagar con el tipo de descuento " + this.tipoDescuento + " :" + (precioApp * DESCUENTO_JOVENES);
+	}
+
+	@Override
+	public String toString() {
+		return "DescuentoJovenes";
+	}
+
+}

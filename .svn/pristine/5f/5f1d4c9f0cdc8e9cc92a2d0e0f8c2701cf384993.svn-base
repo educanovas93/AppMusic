@@ -1,0 +1,72 @@
+package tds.um.modelo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import tds.um.persistencia.DAOException;
+import tds.um.persistencia.FactoriaDAO;
+import tds.um.persistencia.IAdaptadorUsuarioDAO;
+
+public class CatalogoUsuario {
+
+	// Mapa con unico usuario
+	private Map<String, Usuario> usuarios;
+	private static CatalogoUsuario unicaInstancia = new CatalogoUsuario();
+
+	private FactoriaDAO factoriaDao;
+	private IAdaptadorUsuarioDAO adapatadorUsuario;
+
+	// Constructor de clase sin parametro
+	private CatalogoUsuario() {
+		usuarios = new HashMap<String, Usuario>();
+
+			factoriaDao = FactoriaDAO.getInstancia();
+
+			@SuppressWarnings("unchecked")
+			List<Usuario> usuarios = (List<Usuario>)factoriaDao.getUsuarioDAO().recuperarTodosUsuarios();
+			for (Usuario usuario : usuarios) {
+				this.usuarios.put(usuario.getNickUsuario(), usuario);
+		
+			}
+
+	}
+
+	// Metodo get del Catalogo
+	public static CatalogoUsuario getCatalogoUsuario() {
+		return unicaInstancia;
+	}
+
+	// Devuelve todos los clientes
+	public List<Usuario> getUsuario() {
+		ArrayList<Usuario> lista = new ArrayList<Usuario>();
+		for (Usuario usuario : usuarios.values()) {
+			lista.add(usuario);
+		}
+		return lista;
+	}
+
+	// Devuelve un usuario concreto
+	public Usuario getUsuario(int codigo) {
+		for (Usuario usuario : usuarios.values()) {
+			if (usuario.getId() == codigo)
+				return usuario;
+		}
+		return null;
+	}
+	
+	public Usuario getUsuario(String nickName) {
+		return usuarios.get(nickName);
+	}
+	
+	public void addUsuario(Usuario usuario) {
+		System.out.println("Usuario añadido: " + usuario.toString());
+		usuarios.put(usuario.getNickUsuario(),usuario);
+	}
+	
+	public void remove(Usuario usuario) {
+		usuarios.remove(usuario.getNombre());
+	}
+		
+}

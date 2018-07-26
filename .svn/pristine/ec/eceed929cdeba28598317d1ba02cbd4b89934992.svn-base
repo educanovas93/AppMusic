@@ -1,0 +1,181 @@
+
+
+
+.root .context-menu  {
+  -fx-skin: "com.sun.javafx.scene.control.skin.ContextMenuSkin";
+  -fx-background-color: #282828;
+  -fx-border-color: #0f0f0f;
+  -fx-text-fill: #a4a4a4;
+  -fx-border-radius: 10 10 10 10;
+  -fx-background-radius: 10 10 10 10;
+  -fx-background-insets: 0, 1, 2;
+  
+-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 20, 0.0 , 0 , 0 );
+}
+
+
+.root .context-menu .menu-item .label {
+  	-fx-text-fill: #a4a4a4;
+    -fx-font-family:tahoma;
+    -fx-font-size: 13px;
+    -fx-stroke:#5e5f60;
+    -fx-strok-width:0.25;
+    -fx-padding: 5 40;
+    
+}
+
+
+.root .jfx-dialog {
+	-fx-background-color: #a4a4a4;
+	-fx-min-width:80;
+	-fx-min-height:80;
+	-fx-max-width:80;
+	-fx-max-height:80;
+	-fx-pref-width:80;
+	-fx-pref-height:80;
+	
+}
+.root .jfx-dialog .button{
+	-fx-background-color:  #2ab759;
+	-fx-background-radius: 30;
+	-fx-text-fill: white;
+	
+}
+
+
+.root .context-menu .menu-item:focused .label {
+  -fx-text-fill: white;
+}
+
+.root .context-menu .menu-item:focused {
+     -fx-background: -fx-accent;
+     -fx-background-color: #404040;
+     -fx-text-fill: white;
+}
+
+.root .context-menu .menu-item .separator-menu-item{
+	-fx-background-color: #afafaf;
+}
+
+.split-menu-button .arrow-button {
+    -fx-background-color: TRANSPARENT;
+}
+
+.split-menu-button{
+	-fx-background-color: TRANSPARENT;
+}
+
+.split-menu-button .label {
+    -fx-background-color: TRANSPARENT;
+    -fx-text-fill:white;
+}
+
+.split-menu-button:focused{
+	-fx-background-color: TRANSPARENT;
+}
+.split-menu-button:editable{
+	-fx-background-color: TRANSPARENT;
+}
+
+.split-menu-button:editable:focused{
+	-fx-background-color: TRANSPARENT;
+}
+
+.button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.button:pressed {
+    -fx-scale-y: 1;
+    -fx-scale-x: 1;
+}
+
+
+
+/* 
+.split-menu-button,
+.split-menu-button:focused,
+.split-menu-button:editable,
+.split-menu-button:editable:focused{
+    -fx-background-color: TRANSPARENT, TRANSPARENT, TRANSPARENT, TRANSPARENT;
+    -fx-background-radius: 3px;
+    -fx-background-insets: 0px;
+}
+*/
+/* 
+
+
+
+.root .combo-box .combo-box-popup .list-view {
+    -fx-background-color: #282828;
+    -fx-text-fill: #a4a4a4;
+    -fx-font-family: "Calibri" ;
+  	-fx-background-radius: 5 5 5 5;
+  	-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 20, 0.0 , 0 , 0 );
+
+}
+
+
+.root .combo-box .combo-box-popup .list-cell {
+    -fx-background-color: #282828;
+    -fx-text-fill: #a4a4a4;
+    -fx-font-family: "Calibri" ;
+}
+
+.root .combo-box .combo-box-popup .list-cell:hover {
+    -fx-text-fill: white ;
+    -fx-background-color: #404040 ;
+}
+.root .jfx-combo-box .button {
+	-fx-prompt-text-fill: white;
+    -fx-text-fill: white;
+	
+}
+
+
+.root .jfx-combo-box{
+    -jfx-focus-color: #49bc64;
+    -jfx-unfocus-color: white;
+    -fx-prompt-text-fill: white;
+    -fx-text-fill: white;
+}
+
+.root .jfx-combo-box .list-view .text-field{
+    -fx-prompt-text-fill: black;
+    -fx-text-fill: black;
+}
+
+.jfx-combo-box,
+.jfx-combo-box:focused,
+.jfx-combo-box:editable,
+.jfx-combo-box:editable:focused{
+    -fx-background-color: TRANSPARENT, TRANSPARENT, TRANSPARENT, TRANSPARENT;
+    -fx-background-radius: 3px;
+    -fx-background-insets: 0px;
+}
+
+.root .jfx-combo-box .combo-box-button-container{
+    -fx-background-color:TRANSPARENT;
+}
+
+.root .jfx-combo-box:error {
+    -jfx-focus-color: #D34336;
+    -jfx-unfocus-color: #D34336;
+}
+
+.jfx-combo-box > .arrow-button,
+.jfx-combo-box:editable > .arrow-button,
+.jfx-combo-box:editable:focused > .arrow-button{
+    -fx-background-color: TRANSPARENT;
+}
+
+.root .combo-box:contains-focus {
+    -fx-background-color: -fx-focus-color;
+    -fx-background-insets: -0.2;
+    -fx-background-radius: 3;
+    
+}
+*/
+
+

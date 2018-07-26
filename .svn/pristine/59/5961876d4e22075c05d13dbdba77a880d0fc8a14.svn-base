@@ -1,0 +1,256 @@
+package tds.um.controlador;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import tds.um.modelo.Cancion;
+import tds.um.modelo.CatalogoCanciones;
+import tds.um.modelo.CatalogoUsuario;
+import tds.um.modelo.Descuento;
+import tds.um.modelo.EstiloMusical;
+import tds.um.modelo.Interprete;
+import tds.um.modelo.ListaCanciones;
+import tds.um.modelo.NoDescuento;
+import tds.um.modelo.Usuario;
+import tds.um.persistencia.AdapatadorUsuarioTDS;
+import tds.um.persistencia.AdaptadorCancionTDS;
+import tds.um.persistencia.DAOException;
+import tds.um.persistencia.FactoriaDAO;
+import tds.um.persistencia.IAdaptadorCancionDAO;
+import tds.um.persistencia.IAdaptadorListaCancionesDAO;
+import tds.um.persistencia.IAdaptadorUsuarioDAO;
+import tds.um.test.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+public class AppMusic {
+
+	private static AppMusic unicaInstancia;
+	private FactoriaDAO factoriaDAO;
+	private IAdaptadorListaCancionesDAO listasDAO;
+	private IAdaptadorUsuarioDAO usuarioDAO;
+	private IAdaptadorCancionDAO cancionDAO;
+
+	Usuario currentUser;
+
+	private AppMusic() {
+		currentUser = null;
+
+		factoriaDAO = FactoriaDAO.getInstancia();
+		listasDAO = factoriaDAO.getListaCancionesDAO();
+		usuarioDAO = factoriaDAO.getUsuarioDAO();
+		cancionDAO = factoriaDAO.getCancionDAO();
+
+	}
+
+	public static AppMusic getUnicaInstancia() {
+		if (unicaInstancia == null) {
+			unicaInstancia = new AppMusic();
+		}
+		return unicaInstancia;
+	}
+
+	public List<Cancion> cargarCatalogoCanciones(String ruta) {
+		recorrerCarpeta(new File(ruta));
+		return CatalogoCanciones.getCatalogoCanciones().getCanciones();
+	}
+
+	public void recorrerCarpeta(File rutaCarpeta) {
+
+		// Habria que pedir la ruta de la carpeta con una ventana.
+		File listaFicheros[] = rutaCarpeta.listFiles();
+
+		if (listaFicheros == null)
+			System.err.println("No hay ficheros en el directorio especificado");
+		else {
+			// Recorrer la carpeta.
+			for (File fichero : listaFicheros) {
+				if (fichero.isDirectory()) {
+					recorrerCarpeta(fichero);
+				} else {
+					// Tratamiento de la cancion.
+					String rutaFichero = fichero.getAbsolutePath();
+					String nombreFichero = fichero.getName();
+					String titulo = nombreFichero.substring(0, nombreFichero.length() - 4);
+					String estiloMusical = fichero.getParentFile().getName();
+					String datos[] = titulo.split("-");
+					
+					Cancion c = new Cancion(titulo, rutaFichero, estiloMusical, new Interprete(datos[0]));
+					cancionDAO.registrarCancion(c);
+					CatalogoCanciones.getCatalogoCanciones().addCancion(c);
+					CatalogoCanciones.getCatalogoCanciones().addEstilo(new EstiloMusical(estiloMusical));
+				}
+			}
+		}
+		System.out.println("TAM :" + CatalogoCanciones.getCatalogoCanciones().getCanciones().size());
+
+	}
+
+	// TODO:PRUEBA
+	public List<EstiloMusical> getEstilos() {
+		return new LinkedList<EstiloMusical>(CatalogoCanciones.getCatalogoCanciones().getEstilos());
+	}
+
+	public List<Cancion> busquedaCanciones(String titulo, String interprete, EstiloMusical estilo) {
+
+		//List<Cancion> listaCanciones = cancionDAO.recuperarTodasCanciones();
+		List<Cancion> listaCanciones = CatalogoCanciones.getCatalogoCanciones().getCanciones();
+		List<Cancion> cancionesMatch = new LinkedList<>();
+		//
+		for (Cancion cancion : listaCanciones) {
+			if (Objects.equals(cancion.getTitulo().toLowerCase(), titulo.toLowerCase())
+					|| Objects.equals(cancion.getInterprete().getNombre().toLowerCase(), interprete.toLowerCase())
+					|| Objects.equals(cancion.getEstilo().toLowerCase(), estilo.getNombre().toLowerCase())) {
+				cancionesMatch.add(cancion);
+			}
+		}
+		if (cancionesMatch.isEmpty())
+			return listaCanciones;
+		return cancionesMatch;
+	}
+
+	public List<ListaCanciones> recuperarListasUsuario(Usuario usuario) {
+
+		return currentUser.getListasReproduccion();
+	}
+
+	public void cambiarAvatar(String avatar) {
+		System.out.println("AVATARRRRRRRRRRR : "+avatar);
+		this.getCurrentUser().setRutaAvatar(avatar);
+	}
+
+	public boolean login(String nick, String password) {
+		Usuario ul = CatalogoUsuario.getUnicaInstancia().getUsuario(nick);
+		if (ul != null && ul.getPassword().equals(password)) {
+			currentUser = ul;
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean login(String nick,String password,String urlAvatar) {
+		if(login(nick,password)) {
+			if(urlAvatar != null) {
+				this.currentUser.setRutaAvatar(urlAvatar);
+			}
+			return true;
+		}else return false;
+	}
+	
+	
+	@SuppressWarnings("deprecation")
+	public boolean isBirthday(Usuario usuario) {
+	    Date today = new Date();
+	    Date dob = usuario.getFechaNacimiento();
+	    if(today.getMonth() == dob.getMonth() && today.getDay() == dob.getDay()) {
+	    	return true;
+	    }else return false;
+
+	}
+	
+	public boolean loginFB(String nombre,String accessToken,String urlAvatar) {
+		String[] parts = nombre.split(" ");
+		String nombreU = parts[0];
+		String apellidoU = parts[1];
+		String nick = nombreU+apellidoU;
+		if(!isRegistrado(nick)) {
+			Date today = new Date();
+			today.setHours(0);
+			registrarUsuario(nombreU, apellidoU, nombreU+apellidoU+"@facebook.com", nick, accessToken,today,urlAvatar);
+			return login(nick,accessToken);
+		}else {
+			return login(nick,accessToken,urlAvatar);
+		}
+	}
+	
+
+	public void cerrarSesion() {
+		System.out.println("Sesion Cerrada");
+		this.currentUser = null;
+	}
+
+	public Usuario getCurrentUser() {
+		return this.currentUser;
+	}
+
+	public void addNumReproducciones(Cancion cancion) {
+		cancion.addNumReproducciones();
+		cancionDAO.modificarCancion(cancion);
+	}
+	
+	public List<Cancion> getMasReproducidas(){
+		return CatalogoCanciones.getCatalogoCanciones().getMasReproducidas();
+	}
+	
+	public List<Cancion> getCancionesRecientes(Usuario usuario) {
+		return usuario.getRecientes();
+	}
+
+	public boolean isRegistrado(String nickName) {
+		return CatalogoUsuario.getUnicaInstancia().getUsuario(nickName) != null;
+	}
+
+	public boolean registrarUsuario(String nombre, String apellidos, String email, String nickUsuario, String password,
+			Date fechaNacimiento,String rutaAvatar) {
+		if (isRegistrado(nickUsuario)) {
+			return false;
+		}
+
+		Usuario usuario = new Usuario(nombre, apellidos, email, nickUsuario, password, fechaNacimiento);
+		Descuento descuento = new NoDescuento();
+		usuario.setDescuento(descuento);
+		if(rutaAvatar != null) {
+			usuario.setRutaAvatar(rutaAvatar);
+		}
+		usuarioDAO.registrarUsuario(usuario);
+		CatalogoUsuario.getUnicaInstancia().addUsuario(usuario);
+		return true;
+	}
+	
+	public void addCancionRecientes(Usuario usuario,Cancion cancion) {
+		usuario.addRecientes(cancion);
+		usuarioDAO.modificarUsuario(usuario);
+	}
+	
+	private void actualizarLista (Usuario usuario,String nombreLista,List<Cancion> canciones) {
+		ListaCanciones lista = usuario.getListaByNombreLista(nombreLista);
+		lista.setCanciones(canciones);
+		listasDAO.modificarListaCanciones(lista);
+	}
+
+	private void crearLista(Usuario usuario,String nombreLista,List<Cancion> canciones)  {		
+		ListaCanciones lista = new ListaCanciones();
+		lista.setNombreLista(nombreLista); 
+		lista.setCanciones(canciones);
+		listasDAO.registrarListaCanciones(lista);
+		usuario.addListaCanciones(lista);
+		usuarioDAO.modificarUsuario(usuario);
+	}
+	// TODO
+	public void addCancionPlaylist(Usuario usuario ,Cancion cancion, ListaCanciones lista) {
+		usuario.addCancionPlayList(cancion,lista);
+		listasDAO.modificarListaCanciones(lista);
+	}
+
+	public void borrarListaCanciones(Usuario usuario ,ListaCanciones lista) {
+		usuario.borrarListaCanciones(lista);
+		listasDAO.borrarListaCanciones(lista);
+	}
+	public void guardarLista(Usuario usuario ,String nombreLista,List<Cancion> canciones){
+		if(!usuario.existeLista(nombreLista)) {
+			crearLista(usuario,nombreLista,canciones);
+		}else {
+			actualizarLista(usuario,nombreLista,canciones);
+		}		
+	}
+}

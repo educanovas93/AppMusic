@@ -1,0 +1,7 @@
+package tds.um.componente;
+
+import java.util.EventListener;
+
+public interface IBuscadorCanciones extends EventListener {
+	public void buscarCanciones(String xml);
+}

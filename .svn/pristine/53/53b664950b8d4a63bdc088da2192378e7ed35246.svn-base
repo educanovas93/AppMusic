@@ -1,0 +1,227 @@
+package tds.um.modelo;
+
+import java.util.List;
+
+import javax.persistence.*;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.LinkedList;
+
+@Entity
+@Table(name = "Usuario")
+public class Usuario implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	@Id
+	@Column(name = "id")
+	private int id;
+
+	@Column(name = "nombre")
+	private String nombre;
+
+	@Column(name = "apellidos")
+	private String apellidos;
+
+	@Column(name = "email")
+	private String email;
+
+	@Column(name = "nickUsuario")
+	private String nickUsuario;
+
+	@Column(name = "password")
+	private String password;
+
+	@Column(name = "fechaNacimiento")
+	private Date fechaNacimiento;
+
+	@Column(name = "premium")
+	private boolean premium;
+
+	@Fetch(FetchMode.SELECT)
+	@ManyToMany(fetch = FetchType.EAGER)
+	private List<ListaCanciones> listasReproduccion;
+
+	// Con eager, hacemos que se recupere la lista junto con los demas campos del
+	// usuario
+	@Fetch(FetchMode.SELECT)
+	@ManyToMany(fetch = FetchType.EAGER)
+	private List<Cancion> listaCancionesRecientes;
+
+	@Fetch(FetchMode.SELECT)
+	@ManyToMany(fetch = FetchType.EAGER)
+	private List<Cancion> listasCancionesMasReproducidas;
+	
+	@ManyToMany(fetch = FetchType.EAGER)
+	private List<ListaCanciones> listas;
+
+	@Column(name = "tipoDescuento")
+	private Descuento tipoDescuento;
+
+	@Column(name = "avatarUsuario")
+	private String rutaAvatar;
+
+	// Contructor sin parametros para hibernate
+	public Usuario() {
+	}
+
+	public Usuario(String nombre, String apellidos, String email, String nickUsuario, String password,
+			Date fechaNacimiento, boolean premium, List<Cancion> listaCancionesRecientes,
+			List<Cancion> listasCancionesMasReproducidas, Descuento descuento, String rutaAvatar) {
+
+		this.nombre = nombre;
+		this.apellidos = apellidos;
+		this.email = email;
+		this.nickUsuario = nickUsuario;
+		this.password = password;
+		this.fechaNacimiento = fechaNacimiento;
+		this.premium = premium;
+		this.listaCancionesRecientes = listaCancionesRecientes;
+		this.listasCancionesMasReproducidas = listasCancionesMasReproducidas;
+		this.tipoDescuento = descuento;
+		this.rutaAvatar = rutaAvatar;
+	}
+
+	public Usuario(String nombre, String apellidos, String email, String nickUsuario, String password,
+			Date fechaNacimiento) {
+		this.nombre = nombre;
+		this.apellidos = apellidos;
+		this.email = email;
+		this.nickUsuario = nickUsuario;
+		this.password = password;
+		this.fechaNacimiento = fechaNacimiento;
+		this.listasReproduccion = new LinkedList<>();
+		
+		List<Cancion> aux = new LinkedList<>();
+		ListaCanciones lista1 = new ListaCanciones("Lista Edy",aux);
+
+		this.listaCancionesRecientes = new LinkedList<>();
+		this.listasCancionesMasReproducidas = new LinkedList<>();
+		listasReproduccion.add(lista1);
+
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int codigo) {
+		this.id = codigo;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public List<ListaCanciones> getListas(){
+		return this.listas;
+	}
+	
+	public void addListaCanciones(ListaCanciones lista) {
+		this.listas.add(lista);
+	}
+	public String getApellidos() {
+		return apellidos;
+	}
+
+	public void setApellidos(String apellidos) {
+		this.apellidos = apellidos;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public List<ListaCanciones> getListasReproduccion() {
+		return listasReproduccion;
+	}
+
+	public void setListasReproduccion(List<ListaCanciones> listasReproduccion) {
+		this.listasReproduccion = listasReproduccion;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getNickUsuario() {
+		return nickUsuario;
+	}
+
+	public void setNickUsuario(String nickUsuario) {
+		this.nickUsuario = nickUsuario;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Date getFechaNacimiento() {
+		return fechaNacimiento;
+	}
+
+	public void setFechaNacimiento(Date fechaNacimiento) {
+		this.fechaNacimiento = fechaNacimiento;
+	}
+
+	public boolean isPremium() {
+		return premium;
+	}
+
+	public void setPremium(boolean premium) {
+		this.premium = premium;
+	}
+	
+	
+
+	public List<Cancion> getListaCancionesRecientes() {
+		return listaCancionesRecientes;
+	}
+
+	public void setListaCancionesRecientes(List<Cancion> listaCancionesRecientes) {
+		this.listaCancionesRecientes = listaCancionesRecientes;
+	}
+
+	public List<Cancion> getListasCancionesMasReproducidas() {
+		return listasCancionesMasReproducidas;
+	}
+
+	public void setListasCancionesMasReproducidas(List<Cancion> listasCancionesMasReproducidas) {
+		this.listasCancionesMasReproducidas = listasCancionesMasReproducidas;
+	}
+
+	public Descuento getDescuento() {
+		return tipoDescuento;
+	}
+
+	public void setDescuento(Descuento descuento) {
+		this.tipoDescuento = descuento;
+	}
+
+	public String getRutaAvatar() {
+		return rutaAvatar;
+	}
+
+	public void setRutaAvatar(String rutaAvatar) {
+		this.rutaAvatar = rutaAvatar;
+	}
+
+	@Override
+	public String toString() {
+		return "Usuario [id=" + id + ", nombre=" + nombre + ", apellidos=" + apellidos + ", email=" + email
+				+ ", nickUsuario=" + nickUsuario + ", password=" + password + ", fechaNacimiento=" + fechaNacimiento
+				+ ", premium=" + premium + ", descuento=" + tipoDescuento.toString() + "]";
+	}
+
+}

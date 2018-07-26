@@ -1,0 +1,80 @@
+package tds.um.modelo;
+
+
+import java.util.Collections;
+import java.util.List;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "listacanciones")
+public class ListaCanciones {
+
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@Column(name="id")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private int id;
+	
+	@Column(name="nombrelista")
+	private String nombreLista; 
+	
+	@ManyToMany(fetch=FetchType.EAGER)
+	private List<Cancion> canciones; // LISTA de canciones de la lista de reproduccion.
+	
+	
+	public ListaCanciones() {
+		
+	}
+
+
+	public ListaCanciones(String nombreLista, List<Cancion> canciones) {
+		this.nombreLista = nombreLista;
+		this.canciones = canciones;
+	}
+
+
+	public int getId() {
+		return id;
+	}
+
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+
+	public String getNombreLista() {
+		return nombreLista;
+	}
+
+
+	public void setNombreLista(String nombreLista) {
+		this.nombreLista = nombreLista;
+	}
+
+
+	public List<Cancion> getCanciones() {
+		return Collections.unmodifiableList(this.canciones);
+	}
+
+
+	public void setCanciones(List<Cancion> canciones) {
+		this.canciones = canciones;
+	}
+	public void addCancion(Cancion cancion){
+		this.canciones.add(cancion);
+	}
+
+	public boolean eliminarCancion(Cancion cancion) {
+		return this.canciones.remove(cancion);
+	}
+
+	@Override
+	public String toString() {
+		return "ListaCanciones [id=" + id + ", nombreLista=" + nombreLista + ", canciones=" + canciones + "]";
+	}
+	
+	}
+

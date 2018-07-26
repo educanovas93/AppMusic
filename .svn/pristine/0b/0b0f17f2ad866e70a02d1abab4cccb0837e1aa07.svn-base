@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<canciones xmlns="http://www.tds.es/canciones"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+	xs:schemaLocation="/src/tds/um/xml/canciones">
+
+	<cancion titulo="Contigo aprendi">
+		<URL> "src/tds/um/xml/canciones/BOLERO/Alejandro Fernandez ft Malu - Contigo aprendi.mp3 </URL>
+		<estilo>Bolero</estilo>
+		<interprete>Alejandro Fernandez ft Malu</interprete>
+	</cancion>
+	
+	<cancion titulo="Adoro">
+		<URL> "src/tds/um/xml/canciones/BOLERO/Armando Manzanero - Adoro.mp3 </URL>
+		<estilo>Bolero</estilo>
+		<interprete>Armando Manzanero</interprete>
+	</cancion>
+	
+	<cancion titulo="Hotel California">
+		<URL> "src/tds/um/xml/canciones/ROCK/Dire Straits ft Eagles - Hotel California.mp3 </URL>
+		<estilo>Rock</estilo>
+		<interprete>Dire Straits ft Eagles</interprete>
+	</cancion>
+
+</canciones>

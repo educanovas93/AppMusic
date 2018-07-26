@@ -1,0 +1,46 @@
+package tds.um.modelo;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "EstiloMusical")
+public class EstiloMusical implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	public static final String POP = "POP";
+	public static final String ROCK = "ROCK";
+	public static final String JAZZ = "JAZZ";
+	public static final String ANIME = "ANIME";
+	public static final String METAL = "METAL";
+	public static final String BLUES = "BLUES";
+	public static final String RAP = "RAP";
+	public static final String TRAP = "TRAP";
+
+	@Id
+	@Column(name = "nombre")
+	private String estiloMusical;
+
+	public EstiloMusical() {
+
+	}
+
+	public EstiloMusical(String nombre) {
+		this.estiloMusical = nombre;
+	}
+
+	public String getNombre() {
+		return this.estiloMusical;
+	}
+
+	@Override
+	public String toString() {
+		return "EstiloMusical [estilo=" + estiloMusical + "]";
+	}
+
+}

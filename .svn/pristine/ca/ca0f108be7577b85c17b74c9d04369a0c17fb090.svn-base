@@ -1,0 +1,275 @@
+package tds.um.modelo;
+
+import java.util.List;
+
+import java.util.Stack;
+
+import javax.persistence.*;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import tds.um.descuento.DescuentoFijo;
+import tds.um.descuento.DescuentoJovenes;
+import tds.um.descuento.DescuentoJubilados;
+import tds.um.descuento.IDescuento;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Collections;
+import java.util.LinkedList;
+
+@Entity
+@Table(name = "Usuario")
+public class Usuario implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	@Id
+	@Column(name = "id")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private int id;
+
+	@Column(name = "nombre")
+	private String nombre;
+
+	@Column(name = "apellidos")
+	private String apellidos;
+
+	@Column(name = "email")
+	private String email;
+
+	@Column(name = "nickUsuario")
+	private String nickUsuario;
+
+	@Column(name = "password")
+	private String password;
+
+	@Column(name = "fechaNacimiento")
+	private LocalDate fechaNacimiento;
+
+	@Column(name = "premium")
+	private boolean premium;
+	
+	@Fetch(FetchMode.SELECT)
+	@ManyToMany(fetch = FetchType.EAGER)
+	private List<ListaCanciones> listasReproduccion;
+
+	// Con eager, hacemos que se recupere la lista junto con los demas campos del
+	// usuario
+	
+
+	
+	@Fetch(FetchMode.SELECT)
+	@ManyToMany(fetch = FetchType.EAGER)
+	private List<Cancion> listaRecientes;
+
+	@Column(name = "tipoDescuento")
+	private IDescuento tipoDescuento;
+
+	@Column(name = "rutaAvatar")
+	private String rutaAvatar;
+
+	// Contructor sin parametros para hibernate
+	public Usuario() {
+		
+	}
+
+	public Usuario(String nombre, String apellidos, String email, String nickUsuario, String password,
+			LocalDate fechaNacimiento) {
+		this.nombre = nombre;
+		this.apellidos = apellidos;
+		this.email = email;
+		this.nickUsuario = nickUsuario;
+		this.password = password;
+		this.fechaNacimiento = fechaNacimiento;
+		this.listasReproduccion = new LinkedList<>();
+		this.listaRecientes = new LinkedList<>();
+		setTipoDescuento();
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int codigo) {
+		this.id = codigo;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public void addListaCanciones(ListaCanciones lista) {
+		this.listasReproduccion.add(lista);
+	}
+	public String getApellidos() {
+		return apellidos;
+	}
+
+	public void setApellidos(String apellidos) {
+		this.apellidos = apellidos;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public List<ListaCanciones> getListasReproduccion() {
+		return listasReproduccion;
+	}
+
+	public void setListasReproduccion(List<ListaCanciones> listasReproduccion) {
+		this.listasReproduccion = listasReproduccion;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getNickUsuario() {
+		return nickUsuario;
+	}
+
+	public void setNickUsuario(String nickUsuario) {
+		this.nickUsuario = nickUsuario;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public LocalDate getFechaNacimiento() {
+		return fechaNacimiento;
+	}
+
+	public void setFechaNacimiento(LocalDate fechaNacimiento) {
+		this.fechaNacimiento = fechaNacimiento;
+	}
+
+	public boolean isPremium() {
+		return premium;
+	}
+
+	public void setPremium(boolean premium) {
+		this.premium = premium;
+	}
+		
+	public void setRecientes(Stack<Cancion> listaRecientes) {
+		while(listaRecientes.size() > 10) {
+			listaRecientes.remove(10);
+		}
+		this.listaRecientes = listaRecientes;
+	}
+	
+	public void addRecientes(Cancion cancion) {
+		if(!this.listaRecientes.contains(cancion)) {
+			if(this.listaRecientes.size() >= 10) {
+				this.listaRecientes.remove(9);
+				this.listaRecientes.add(0, cancion);
+			}else {
+				this.listaRecientes.add(0,cancion);
+			}
+		}
+	}
+
+	
+	public List<Cancion> getRecientes(){
+		return Collections.unmodifiableList(listaRecientes);
+	}
+	
+	public IDescuento getDescuento() {
+		return tipoDescuento;
+	}
+
+	private void setTipoDescuento() {
+		if(esJoven()) {
+			this.tipoDescuento = new DescuentoJovenes();
+		}else if(esJubilado()) {
+			this.tipoDescuento = new DescuentoJubilados();
+		}else{
+			this.tipoDescuento = new DescuentoFijo();
+		}
+	}
+	private boolean esJubilado() {
+		LocalDate today = LocalDate.now();
+		if ((this.fechaNacimiento != null)) {
+			if(Period.between(this.fechaNacimiento,today).getYears() > 65) {
+				return true;
+			}else return false;
+		}else {
+			return false;
+		}
+	}
+	
+	private boolean esJoven() {
+		LocalDate today = LocalDate.now();
+		if ((this.fechaNacimiento != null)) {
+			if(Period.between(this.fechaNacimiento,today).getYears() < 18) {
+				return true;
+			}else return false;
+		}else {
+			return false;
+		}
+	}
+
+	public String getRutaAvatar() {
+		return rutaAvatar;
+	}
+
+	public void setRutaAvatar(String rutaAvatar) {
+		this.rutaAvatar = rutaAvatar;
+	}
+
+	@Override
+	public String toString() {
+		return "Usuario [id=" + id + ", nombre=" + nombre + ", apellidos=" + apellidos + ", email=" + email
+				+ ", nickUsuario=" + nickUsuario + ", password=" + password + ", fechaNacimiento=" + fechaNacimiento
+				+ ", premium=" + premium + ", descuento=" + tipoDescuento.toString() + "]";
+	}
+
+	public void  addCancionPlayList(Cancion cancion, ListaCanciones lista) {
+		lista.addCancion(cancion);
+	}
+	
+	public void eliminarCancionPlayList(Cancion cancion,ListaCanciones lista) {
+		lista.eliminarCancion(cancion);
+	}
+	
+	public Boolean existeLista(String nombreLista) {
+		for (ListaCanciones listaRep : this.listasReproduccion) {
+			if(listaRep.getNombreLista().equals(nombreLista)) {
+				return true;
+			}
+		}	
+		return false;
+	}
+	
+	public Boolean existeLista(ListaCanciones lista) {
+		return this.listasReproduccion.contains(lista);
+	}
+	
+	//devuelve null si no encuentra una lista de canciones con ese nombre
+	public ListaCanciones getListaByNombreLista(String nombreLista) {
+		for (ListaCanciones listasRep : this.listasReproduccion) {
+			if(listasRep.getNombreLista().equals(nombreLista)) {
+				return listasRep;
+			}
+		}
+		return null;
+	}
+	
+	public void borrarListaCanciones(ListaCanciones lista) {
+		this.listasReproduccion.remove(lista);
+	}
+	
+}

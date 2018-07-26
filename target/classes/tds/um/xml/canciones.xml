@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<canciones xmlns="http://www.tds.es/canciones" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+	xs:schemaLocation="http://www.tds.es/canciones canciones.xsd">
+	
+	<cancion titulo="Hotel California">
+		<URL><![CDATA[http://csgo.cablehogar.es/Eagles%20-%20Hotel%20California.mp3]]></URL>
+		<estilo>HTTP</estilo>
+		<interprete>The Eagles</interprete>
+	</cancion>
+	
+	<cancion titulo="Enter Sandman">
+		<URL><![CDATA[http://csgo.cablehogar.es/Metallica%20-%20Enter%20Sandman.mp3]]></URL>
+		<estilo>HTTP</estilo>
+		<interprete>Metallica</interprete>
+	</cancion>
+
+	<cancion titulo="Civil War">
+		<URL><![CDATA[http://csgo.cablehogar.es/CivilWar-GunsAndRoses.mp3]]></URL>
+		<estilo>HTTP</estilo>
+		<interprete>Guns N Roses</interprete>
+	</cancion>
+
+</canciones>

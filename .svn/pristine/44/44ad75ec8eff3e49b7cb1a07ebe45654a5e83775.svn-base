@@ -1,0 +1,263 @@
+package tds.um.controlador;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
+import tds.um.modelo.Cancion;
+import tds.um.modelo.CatalogoCanciones;
+import tds.um.modelo.CatalogoUsuario;
+import tds.um.modelo.Descuento;
+import tds.um.modelo.EstiloMusical;
+import tds.um.modelo.Interprete;
+import tds.um.modelo.ListaCanciones;
+import tds.um.modelo.NoDescuento;
+import tds.um.modelo.Usuario;
+import tds.um.persistencia.AdapatadorUsuarioTDS;
+import tds.um.persistencia.AdaptadorCancionTDS;
+import tds.um.persistencia.DAOException;
+import tds.um.persistencia.FactoriaDAO;
+import tds.um.persistencia.IAdaptadorCancionDAO;
+import tds.um.persistencia.IAdaptadorListaCancionesDAO;
+import tds.um.persistencia.IAdaptadorUsuarioDAO;
+import tds.um.test.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+
+public class AppMusic {
+
+	private static AppMusic unicaInstancia;
+	private FactoriaDAO factoriaDAO;
+	private IAdaptadorListaCancionesDAO listasDAO;
+	private IAdaptadorUsuarioDAO usuarioDAO;
+	private IAdaptadorCancionDAO cancionDAO;
+
+	// TODO : COMO VEA ESTO EL BERMUDEZ NOS LINCHA
+	ListaCanciones l1 = null;
+	ListaCanciones l2 = null;
+	ListaCanciones l3 = null;
+	ListaCanciones l4 = null;
+	Usuario currentUser;
+
+	private AppMusic() {
+		currentUser = null;
+
+		factoriaDAO = FactoriaDAO.getInstancia();
+		listasDAO = factoriaDAO.getListaCancionesDAO();
+		usuarioDAO = factoriaDAO.getUsuarioDAO();
+		cancionDAO = factoriaDAO.getCancionDAO();
+
+	}
+
+	public static AppMusic getUnicaInstancia() {
+		if (unicaInstancia == null) {
+			unicaInstancia = new AppMusic();
+		}
+		return unicaInstancia;
+	}
+
+	public List<Cancion> cargarCatalogoCanciones(String ruta) {
+		// TODO Cambiar aqui la ruta a donde tengas las canciones
+		recorrerCarpeta(new File(ruta));
+		return CatalogoCanciones.getCatalogoCanciones().getCanciones();
+	}
+
+	public void recorrerCarpeta(File rutaCarpeta) {
+
+		// Habria que pedir la ruta de la carpeta con una ventana.
+		File listaFicheros[] = rutaCarpeta.listFiles();
+
+		if (listaFicheros == null)
+			System.err.println("No hay ficheros en el directorio especificado");
+		else {
+			// Recorrer la carpeta.
+			for (File fichero : listaFicheros) {
+				if (fichero.isDirectory()) {
+					recorrerCarpeta(fichero);
+				} else {
+					// Tratamiento de la cancion.
+					String rutaFichero = fichero.getAbsolutePath();
+					String nombreFichero = fichero.getName();
+					String titulo = nombreFichero.substring(0, nombreFichero.length() - 4);
+					String estiloMusical = fichero.getParentFile().getName();
+					String datos[] = titulo.split("-");
+
+					Cancion c = new Cancion(titulo, rutaFichero, estiloMusical, new Interprete(datos[0]));
+					cancionDAO.registrarCancion(c);
+					CatalogoCanciones.getCatalogoCanciones().addCancion(c);
+				}
+
+			}
+		}
+		System.out.println("TAM :" + CatalogoCanciones.getCatalogoCanciones().getCanciones().size());
+
+	}
+
+	// TODO:PRUEBA
+	public List<EstiloMusical> getEstilos() {
+		LinkedList<EstiloMusical> est = new LinkedList<>();
+		est.clear();
+		EstiloMusical pop = new EstiloMusical(EstiloMusical.POP);
+		EstiloMusical rock = new EstiloMusical(EstiloMusical.ROCK);
+		EstiloMusical blues = new EstiloMusical(EstiloMusical.BLUES);
+		EstiloMusical anime = new EstiloMusical(EstiloMusical.ANIME);
+
+		est.add(pop);
+		est.add(rock);
+		est.add(blues);
+		est.add(anime);
+		return est;
+
+	}
+
+	public List<Cancion> busquedaCanciones(String titulo, String interprete, EstiloMusical estilo) {
+
+		AdaptadorCancionTDS cDAO = (AdaptadorCancionTDS) factoriaDAO.getCancionDAO();
+		List<Cancion> listaCanciones = cDAO.recuperarTodasCanciones();
+		List<Cancion> cancionesMatch = new LinkedList<>();
+		//
+		for (Cancion cancion : listaCanciones) {
+			if (Objects.equals(cancion.getTitulo().toLowerCase(), titulo.toLowerCase())
+					|| Objects.equals(cancion.getInterprete().getNombre().toLowerCase(), interprete.toLowerCase())
+					|| Objects.equals(cancion.getEstilo().toLowerCase(), estilo.getNombre().toLowerCase())) {
+				cancionesMatch.add(cancion);
+			}
+		}
+		if (cancionesMatch.isEmpty())
+			return listaCanciones;
+		return cancionesMatch;
+	}
+
+	public List<ListaCanciones> recuperarListasUsuario(Usuario usuario) {
+
+		return currentUser.getListasReproduccion();
+	}
+
+	public void cambiarAvatar(String avatar) {
+		this.getCurrentUser().setRutaAvatar(avatar);
+
+	}
+
+	// TODO
+	public void addCancionPlaylist(Cancion cancion, ListaCanciones lista) {
+		lista.addCancion(cancion);
+	}
+
+	public Boolean login(String nombre, String password) {
+
+		Usuario ul = CatalogoUsuario.getCatalogoUsuario().getUsuario(nombre);
+		if (ul != null && ul.getPassword().equals(password)) {
+			currentUser = ul;
+			return true;
+		}
+		return false;
+
+	}
+
+	public boolean loginFB(String user) {
+		System.out.println("Logeando con facebook usuario " + user);
+		return true;
+	}
+
+	public void cerrarSesion() {
+		System.out.println("Sesion Cerrada");
+		this.currentUser = null;
+	}
+
+	public Usuario getCurrentUser() {
+		return this.currentUser;
+	}
+
+	public void addNumReproducciones(Cancion cancion) {
+		cancion.addNumReproducciones();
+	}
+
+	public List<Cancion> getCancionesRecientes() {
+		// Cada vez que se reproduce se añade la cancion, está se añade a la lista de
+		// canciones recientes.
+		// AdapatadorUsuarioTDS uDAO = (AdapatadorUsuarioTDS)
+		// factoriaDAO.getUsuarioDAO();
+		// Usuario u = uDAO.recuperarUsuario(currentUser.getId());
+		// System.out.println("USUARIO: " + currentUser.getNickUsuario());
+		return currentUser.getListaCancionesRecientes();
+
+	}
+
+	/*
+	 * Edy, AppMusic
+	 */
+
+	public boolean isRegistrado(String nickName) throws Exception {
+		System.out.println("Usuario es registrado?");
+		return CatalogoUsuario.getCatalogoUsuario().getUsuario(nickName) != null;
+	}
+
+	public boolean registrarUsuario(String nombre, String apellidos, String email, String nickUsuario, String password,
+			Date fechaNacimiento) throws Exception {
+		if (isRegistrado(nickUsuario)) {
+			return false;
+		}
+
+		Usuario usuario = new Usuario(nombre, apellidos, email, nickUsuario, password, fechaNacimiento);
+		Descuento descuento = new NoDescuento();
+		usuario.setDescuento(descuento);
+		// tiene que ser la interfazz
+		AdapatadorUsuarioTDS uDAO = (AdapatadorUsuarioTDS) factoriaDAO.getUsuarioDAO();
+		uDAO.registrarUsuario(usuario);
+		CatalogoUsuario.getCatalogoUsuario().addUsuario(usuario);
+		return true;
+	}
+
+	/*
+	public boolean loginUsuario(String nickName, String password) {
+		Usuario ul = CatalogoUsuario.getCatalogoUsuario().getUsuario(nickName);
+		if (ul != null && ul.getPassword().equals(password)) {
+			currentUser = ul;
+			return true;
+		}
+		return false;
+	}*/
+
+	public ListaCanciones crearListaDeCanciones(String nombreLista) {
+		ListaCanciones aux = new ListaCanciones();
+		aux.setNombreLista(nombreLista);
+		aux.setCanciones(new LinkedList<Cancion>());
+		return aux;
+	}
+
+	public void borrarListaCanciones(ListaCanciones lista) {
+		LinkedList<ListaCanciones> listasUsuario = (LinkedList<ListaCanciones>) recuperarListasUsuario(currentUser);
+		for (ListaCanciones listaCanciones : listasUsuario) {
+			if (listaCanciones.getNombreLista() == lista.getNombreLista()) {
+
+			}
+		}
+
+	}
+
+	public void crearNuevaLista(String nombreLista, List<Cancion> canciones) {
+		// recupero la lista del usuario con el nombre de la lista y le actualizo la
+		// lista de canciones que es cancionesy carrer
+	}
+
+	public void actualizarLista(String nombreLista, List<Cancion> canciones) {
+
+	}
+
+	public boolean usuarioTieneLista(String nombreLista) {
+		LinkedList<ListaCanciones> listasUsuario = (LinkedList<ListaCanciones>) recuperarListasUsuario(currentUser);
+		for (ListaCanciones listaCanciones : listasUsuario) {
+			if (listaCanciones.getNombreLista() == nombreLista) {
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+}

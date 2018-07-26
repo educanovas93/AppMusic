@@ -1,0 +1,48 @@
+package tds.um.test;
+
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import tds.um.modelo.Cancion;
+import tds.um.modelo.Usuario;
+import tds.um.persistencia.AdapatadorUsuarioTDS;
+
+public class TestUsuarioHibernate {
+
+	static AdapatadorUsuarioTDS uDAO = new AdapatadorUsuarioTDS();
+
+	public static void main(String[] args) {
+
+		Usuario u1 = null; // new Usuario("Edison", "Loza", "edisonomar.loza@um.es",d);
+		Usuario u2 = null; // new Usuario("Omar", "Guzman", "omar.loza@um.es",d);
+		Usuario u3 = null; // new Usuario("Omar", "Guzman", "omar.loza@um.es",d);
+
+		System.out.println("TEST USUARIO");
+
+		uDAO.registrarUsuario(u1);
+		uDAO.registrarUsuario(u2);
+		uDAO.registrarUsuario(u3);
+		System.out.println("Lista recuperada: " + uDAO.recuperarTodosUsuarios());
+
+		System.out.println("Borramos:" + u1.getNombre() + " " + u1.getApellidos());
+		uDAO.borrarUsuario(u1);
+		System.out.println(
+				"Recuperar " + u1.getNombre() + " " + u1.getApellidos() + " : " + uDAO.recuperarUsuario(u1.getId()));
+
+		System.out.println("Añadimos:" + u1.getNombre() + " " + u1.getApellidos());
+		uDAO.registrarUsuario(u1);
+		System.out.println(
+				"Recuperar " + u1.getNombre() + " " + u1.getApellidos() + " : " + uDAO.recuperarUsuario(u1.getId()));
+
+		System.out.println("Recuperamos todos los usuarios");
+		System.out.println("Lista recuperada: " + uDAO.recuperarTodosUsuarios());
+		System.out.println("FIN TEST USUARIO");
+	}
+
+}

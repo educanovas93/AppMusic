@@ -1,0 +1,110 @@
+package tds.um.modelo;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import tds.um.persistencia.DAOException;
+import tds.um.persistencia.FactoriaDAO;
+import tds.um.persistencia.IAdaptadorCancionDAO;
+import tds.um.persistencia.IAdaptadorUsuarioDAO;
+
+public class CatalogoCanciones {
+
+	/*
+	 * Tenemos que crear dos metodos: 1º Devuelva una lista con las canciones de un
+	 * interprete. 2º Devuelva una lista con las cancions de un estilo musical
+	 */
+
+	// Mapa con unico usuario
+	private Map<String, Cancion> canciones;
+	private Set<EstiloMusical> estilos;
+	private static CatalogoCanciones unicaInstancia = new CatalogoCanciones();
+
+	private FactoriaDAO factoriaDao;
+
+	// Constructor de clase sin parametro
+	private CatalogoCanciones() {
+		this.estilos = new HashSet<>();
+		canciones = new HashMap<String, Cancion>();
+
+		try {
+			factoriaDao = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
+			List<Cancion> canciones = (List<Cancion>) factoriaDao.getCancionDAO().recuperarTodasCanciones();
+			for (Cancion cancion : canciones) {
+				this.canciones.put(cancion.getTitulo(), cancion);
+			}
+		} catch (DAOException eDAO) {
+			eDAO.printStackTrace();
+		}
+	}
+
+	// Metodo get del Catalogo
+	public static CatalogoCanciones getCatalogoCanciones() {
+		return unicaInstancia;
+	}
+
+	// Devuelve todos las canciones
+	public List<Cancion> getCanciones() {
+		ArrayList<Cancion> lista = new ArrayList<Cancion>();
+		for (Cancion cancion : canciones.values()) {
+			lista.add(cancion);
+		}
+		return lista;
+	}
+	
+	
+	public List<Cancion> getMasReproducidas(){
+		Comparator<Cancion> byNRep = (Cancion o1, Cancion o2)->Integer.compare(o2.getNumReproduciones(),o1.getNumReproduciones());
+		ArrayList<Cancion> aux = new ArrayList<>(getCanciones());
+		LinkedList<Cancion> aux1 = new LinkedList<>();
+		aux.sort(byNRep);
+		for(int i = 0; i < 10;i++) {
+			aux1.add(aux.get(i));
+		}
+		return aux1;
+	}
+	
+
+	// Devuelve una cancion en particular
+	public Cancion getCancion(int codigo) {
+		for (Cancion cancion : canciones.values()) {
+			if (cancion.getId() == codigo)
+				return cancion;
+		}
+		return null;
+	}
+
+	public void addCancion(Cancion cancion) {
+		canciones.put(cancion.getTitulo(),cancion);
+		addEstilo(new EstiloMusical(cancion.getEstilo()));
+	}
+	
+	public void remove(Cancion cancion) {
+		canciones.remove(cancion.getTitulo());
+	}
+	
+	public void addCancionesCatalogo(List<Cancion> cancion) {
+		for (Cancion can : cancion) {
+			addCancion(can);
+		}
+	}
+	
+	public boolean contieneCancion(Cancion cancion) {
+		return this.canciones.containsValue(cancion);
+	}
+		
+	public void addEstilo(EstiloMusical estilo) {	
+		this.estilos.add(estilo);
+	}
+	public Set<EstiloMusical> getEstilos(){
+		return Collections.unmodifiableSet(estilos);
+	}
+
+}

@@ -1,0 +1,27 @@
+package tds.um.componente;
+
+import java.io.File;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import tds.um.componente.Canciones;;
+
+public class CargadorCanciones {
+
+	public static Canciones cargarCanciones(String fichero) {
+
+		JAXBContext jc;
+		Canciones canciones = null;
+		try {
+			jc = JAXBContext.newInstance("tds.um.componente");
+			Unmarshaller u = jc.createUnmarshaller();
+			File file = new File(fichero);
+			canciones = (Canciones) u.unmarshal(file);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}	
+		return canciones;
+	}
+}

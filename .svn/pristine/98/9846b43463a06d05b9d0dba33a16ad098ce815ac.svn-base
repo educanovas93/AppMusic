@@ -1,0 +1,248 @@
+package tds.um.controlador;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import tds.um.modelo.Cancion;
+import tds.um.modelo.CatalogoUsuario;
+import tds.um.modelo.Descuento;
+import tds.um.modelo.EstiloMusical;
+import tds.um.modelo.Interprete;
+import tds.um.modelo.ListaCanciones;
+import tds.um.modelo.NoDescuento;
+import tds.um.modelo.Usuario;
+import tds.um.persistencia.AdapatadorUsuarioTDS;
+import tds.um.persistencia.DAOException;
+import tds.um.persistencia.FactoriaDAO;
+import tds.um.test.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+
+public class AppMusic {
+
+	private static AppMusic unicaInstancia;
+	private FactoriaDAO factoriaDAO;
+
+	// TODO : COMO VEA ESTO EL BERMUDEZ NOS LINCHA
+	ListaCanciones l1 = null;
+	ListaCanciones l2 = null;
+	ListaCanciones l3 = null;
+	ListaCanciones l4 = null;
+	Usuario currentUser;
+
+	private AppMusic() {
+		currentUser = null;
+		try {
+			factoriaDAO = FactoriaDAO.getInstancia();
+		} catch (DAOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static AppMusic getUnicaInstancia() {
+		if (unicaInstancia == null) {
+			unicaInstancia = new AppMusic();
+		}
+		return unicaInstancia;
+	}
+
+	public void cargarCatalogoCanciones() {
+		// recorro el directorio raiz de canciones
+		// cojo las canciones y por cada carpeta creo un estilo
+		// creo por cada ruta una cancion
+		// la meto al catalogo
+	}
+
+	// TODO:PRUEBA
+	public List<EstiloMusical> getEstilos() {
+		LinkedList<EstiloMusical> est = new LinkedList<>();
+		est.clear();
+		EstiloMusical pop = new EstiloMusical(EstiloMusical.POP);
+		EstiloMusical rock = new EstiloMusical(EstiloMusical.ROCK);
+		EstiloMusical blues = new EstiloMusical(EstiloMusical.BLUES);
+		EstiloMusical anime = new EstiloMusical(EstiloMusical.ANIME);
+
+		est.add(pop);
+		est.add(rock);
+		est.add(blues);
+		est.add(anime);
+		return est;
+
+	}
+
+	public List<Cancion> busquedaCanciones(String titulo, String interprete, EstiloMusical estilo) {
+
+		System.out.println("Busqueda con los parametros Titulo" + titulo + " Interprete " + interprete + " Estilo "
+				+ estilo.getNombre());
+		EstiloMusical pop = new EstiloMusical(EstiloMusical.POP);
+
+		List<Cancion> aux = new LinkedList<>();
+		aux.add(new Cancion("Sirenas", "Sirenas - Taburete.mp3", pop, new Interprete("Taburete")));
+		aux.add(new Cancion("Hotel California", "Eagles - Hotel California.mp3", pop, new Interprete("Eagles")));
+		aux.add(new Cancion("Despacito", "Despacito.mp3", pop, new Interprete("Luis Fonsi")));
+		aux.add(new Cancion("Rohan Theme", "lord.mp3", pop, new Interprete("Aragorn")));
+		aux.add(new Cancion("Enter Sandman", "01 Enter Sandman.mp3", pop, new Interprete("Metallica")));
+		aux.add(new Cancion("Sirenas", "Sirenas - Taburete.mp3", pop, new Interprete("Taburete")));
+		aux.add(new Cancion("Hotel California", "Eagles - Hotel California.mp3", pop, new Interprete("Eagles")));
+		aux.add(new Cancion("Despacito", "Despacito.mp3", pop, new Interprete("Luis Fonsi")));
+		aux.add(new Cancion("Rohan Theme", "lord.mp3", pop, new Interprete("Aragorn")));
+		aux.add(new Cancion("Enter Sandman", "01 Enter Sandman.mp3", pop, new Interprete("Metallica")));
+		aux.add(new Cancion("Sirenas", "Sirenas - Taburete.mp3", pop, new Interprete("Taburete")));
+
+		return aux;
+	}
+
+	public List<ListaCanciones> recuperarListasUsuario(Usuario usuario) {
+		EstiloMusical pop = new EstiloMusical(EstiloMusical.POP);
+		LinkedList<Cancion> lc = new LinkedList<>();
+		List<ListaCanciones> aux = new LinkedList<>();
+		Cancion tabu = new Cancion("Sirenas", "Sirenas - Taburete.mp3", pop, new Interprete("Taburete"));
+		Cancion cali = new Cancion("Hotel California", "Eagles - Hotel California.mp3", pop, new Interprete("Eagles"));
+		Cancion despacito = new Cancion("Despacito", "Despacito.mp3", pop, new Interprete("Luis Fonsi"));
+		Cancion rohan = new Cancion("Rohan Theme", "lord.mp3", pop, new Interprete("Aragorn"));
+		Cancion sandman = new Cancion("Enter Sandman", "01 Enter Sandman.mp3", pop, new Interprete("Metallica"));
+		
+		lc.add(rohan);
+		lc.add(sandman);
+		lc.add(tabu);
+		lc.add(cali);
+		lc.add(despacito);
+	
+		if (l1 == null && l2 == null && l3 == null && l4 == null) {
+			l1 = new ListaCanciones("Lista1", lc);
+			l2 = new ListaCanciones("Lista2", lc);
+			l3 = new ListaCanciones("Lista3", lc);
+			l4 = new ListaCanciones("Lista4", lc);
+
+		}
+		aux.add(l1);
+		aux.add(l2);
+		aux.add(l3);
+		aux.add(l4);
+		return aux;
+	}
+
+	public void cambiarAvatar(String avatar) {
+		this.getCurrentUser().setRutaAvatar(avatar);
+
+	}
+
+	// TODO
+	public void addCancionPlaylist(Cancion cancion, ListaCanciones lista) {
+		lista.addCancion(cancion);
+	}
+	
+	public Boolean login(String nombre, String password) {
+		// comprobamos si el usuario esta registrado, si lo esta y la pass es correcta
+		// Usuario aux = recuperarUsuarioPersistencia(user,password);
+		// si no se encuentra el usuario return false
+		//Usuario user = CatalogoUsuario.getCatalogoUsuario().getUsuario(nombre);
+		//System.out.println("Password del usuario: " + user.getPassword());
+		System.out.println("Password introducida: " + password);
+		if (nombre.equals("false") && password.equals("false")) {
+			return false;
+		} else if (getCurrentUser() == null) {
+			Usuario aux = new Usuario(nombre, "app", "email", "nick", password, null);
+			this.currentUser = aux;
+			return true;
+		} else
+			return false;
+
+	}
+
+	/*
+	 * public Boolean login(String nombre, String password) { // comprobamos si el
+	 * usuario esta registrado, si lo esta y la pass es correcta // Usuario aux =
+	 * recuperarUsuarioPersistencia(user,password); // si no se encuentra el usuario
+	 * return false Usuario user =
+	 * CatalogoUsuario.getCatalogoUsuario().getUsuario(nombre);
+	 * System.out.println("Password del usuario: " + user.getPassword());
+	 * System.out.println("Password introducida: " + password); if
+	 * (nombre.equals("false") && password.equals("false")) { return false; } else
+	 * if (getCurrentUser() == null) { Usuario aux = new Usuario(nombre,
+	 * "apellidos", "email", new NoDescuento()); this.currentUser = aux; return
+	 * true; } else return false; }
+	 */
+
+	public boolean loginFB(String user) {
+		System.out.println("Logeando con facebook usuario " + user);
+		return true;
+	}
+
+	public void cerrarSesion() {
+		System.out.println("Sesion Cerrada");
+		this.currentUser = null;
+	}
+
+	public Usuario getCurrentUser() {
+		return this.currentUser;
+	}
+
+	public void addNumReproducciones(Cancion cancion) {
+		cancion.addNumReproducciones();
+	}
+
+	public List<Cancion> getCancionesRecientes() {
+			EstiloMusical pop = new EstiloMusical(EstiloMusical.POP);
+			Cancion tabu = new Cancion("Sirenas", "Sirenas - Taburete.mp3", pop, new Interprete("Taburete"));
+			Cancion cali = new Cancion("Hotel California", "Eagles - Hotel California.mp3", pop,
+					new Interprete("Eagles"));
+			Cancion despacito = new Cancion("Despacito", "Despacito.mp3", pop, new Interprete("Luis Fonsi"));
+			Cancion rohan = new Cancion("Rohan Theme", "lord.mp3", pop, new Interprete("Aragorn"));
+			Cancion sandman = new Cancion("Enter Sandman", "01 Enter Sandman.mp3", pop, new Interprete("Metallica"));
+			// this.currentUser.getCancionesRecientes().add(tabu);
+			// this.currentUser.getCancionesRecientes().add(cali);
+			// this.currentUser.getCancionesRecientes().add(despacito);
+			// this.currentUser.getCancionesRecientes().add(rohan);
+			// this.currentUser.getCancionesRecientes().add(sandman);
+			LinkedList<Cancion> aux = new LinkedList<>();
+			aux.add(despacito);
+			aux.add(rohan);
+			aux.add(tabu);
+			aux.add(cali);
+		
+			return aux;
+			
+			
+	}
+
+	/*
+	 * Edy, AppMusic
+	 */
+
+	public boolean isRegistrado(String nickName) throws Exception {
+		System.out.println("Usuario es registrado?");
+		return CatalogoUsuario.getCatalogoUsuario().getUsuario(nickName) != null;
+	}
+
+	public boolean registrarUsuario(String nombre, String apellidos, String email, String nickUsuario, String password,
+			Date fechaNacimiento) throws Exception {
+		if (isRegistrado(nickUsuario)) {
+			return false;
+		}
+
+		Usuario usuario = new Usuario(nombre, apellidos, email, nickUsuario, password, fechaNacimiento);
+		Descuento descuento = new NoDescuento();
+		usuario.setDescuento(descuento);
+		AdapatadorUsuarioTDS uDAO = (AdapatadorUsuarioTDS) factoriaDAO.getUsuarioDAO();
+		uDAO.registrarUsuario(usuario);
+		CatalogoUsuario.getCatalogoUsuario().addUsuario(usuario);
+		return true;
+	}
+
+	public boolean loginUsuario(String nickName, String password) {
+		Usuario ul = CatalogoUsuario.getCatalogoUsuario().getUsuario(nickName);
+		if (ul != null && ul.getPassword().equals(password)) {
+			currentUser = ul;
+			return true;
+		}
+		return false;
+	}
+
+}

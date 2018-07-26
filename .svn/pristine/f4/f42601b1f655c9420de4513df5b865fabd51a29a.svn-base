@@ -1,0 +1,1565 @@
+package tds.um.vista.manejador;
+
+import com.tulskiy.*;
+import com.tulskiy.keymaster.common.HotKey;
+import com.tulskiy.keymaster.common.HotKeyListener;
+import com.tulskiy.keymaster.common.MediaKey;
+import com.tulskiy.keymaster.common.Provider;
+
+import java.awt.event.KeyAdapter;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.sql.Date;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.print.attribute.standard.DialogTypeSelection;
+import javax.swing.KeyStroke;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
+
+import org.controlsfx.control.Notifications;
+import org.controlsfx.control.action.Action;
+
+import com.jfoenix.controls.*;
+import com.jfoenix.controls.cells.editors.base.JFXTreeTableCell;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventDispatchChain;
+import javafx.event.EventDispatcher;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.geometry.Side;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Slider;
+import javafx.scene.control.SplitMenuButton;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.TableViewSelectionModel;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.TreeTableView;
+import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
+import tds.um.controlador.AppMusic;
+import tds.um.modelo.Cancion;
+import tds.um.modelo.EstiloMusical;
+import tds.um.modelo.Interprete;
+import tds.um.modelo.ListaCanciones;
+
+public class InterfazController implements Initializable {
+
+	@FXML
+	private StackPane panelPila;
+
+	@FXML
+	private BorderPane panelPrincipal;
+
+	@FXML
+	private GridPane panelExplorar;
+
+	@FXML
+	private GridPane panelNuevaLista;
+
+	@FXML
+	private GridPane panelReciente;
+
+	@FXML
+	private GridPane panelMisListas;
+
+	@FXML
+	private GridPane panelReproductor;
+
+	@FXML
+	private ImageView botonBack;
+
+	@FXML
+	private ImageView botonForward;
+
+	@FXML
+	private ImageView botonReplay;
+
+	@FXML
+	private ImageView botonReplayPress;
+
+	@FXML
+	private ImageView botonPlay;
+
+	@FXML
+	private ImageView botonPause;
+
+	@FXML
+	private ImageView botonStop;
+
+	@FXML
+	private ImageView muted;
+
+	@FXML
+	private ImageView unmuted;
+
+	@FXML
+	private ImageView imagenUser;
+
+	@FXML
+	private Button boton;
+
+	@FXML
+	private JFXSlider timeSlider;
+
+	@FXML
+	private JFXSlider volumeSlider;
+
+	@FXML
+	private Label playTime;
+
+	@FXML
+	private Label transcurrido;
+
+	@FXML
+	private Label duracion;
+
+	@FXML
+	private Label tituloCancionActual;
+
+	@FXML
+	private Label interpreteCancionActual;
+
+	@FXML
+	private JFXListView<PanelLabel> list;
+
+	@FXML
+	private JFXListView<ListaCanciones> listaRepMenu;
+
+	@FXML
+	private JFXButton botonBuscar;
+
+	@FXML
+	private JFXButton botonMejorar;
+
+	@FXML
+	private TableView<Cancion> tablaBusqueda;
+
+	@FXML
+	private JFXTextField interprete;
+
+	@FXML
+	private JFXTextField titulo;
+
+	@FXML
+	private JFXComboBox<EstiloMusical> estilo;
+
+	@FXML
+	private ImageView albumCover;
+
+	@FXML
+	private TableView<Cancion> tablaMisListas;
+
+	@FXML
+	private TableView<Cancion> tablaReciente;
+
+	@FXML
+	private Label labelLista;
+	@FXML
+	private ContextMenu cm;
+
+	@FXML
+	private SplitMenuButton menuUsuario;
+
+	@FXML
+	private Label labelBienvenido;
+
+	@FXML
+	private Text textoBienvenido;
+
+	@FXML
+	private MenuItem menuMejorar;
+
+	@FXML
+	private TableView<Cancion> tablaBusquedaNueva;
+
+	@FXML
+	private TableView<Cancion> tablaNuevaLista;
+
+	@FXML
+	private JFXComboBox<ListaCanciones> comboListas;
+
+	@FXML
+	private JFXButton botonVerNew;
+
+	@FXML
+	private JFXTextField tituloNew;
+
+	@FXML
+	private JFXTextField interpreteNew;
+
+	@FXML
+	private JFXComboBox<EstiloMusical> estiloNew;
+
+	@FXML
+	private JFXButton addNew;
+
+	@FXML
+	private JFXButton remNew;
+
+	@FXML
+	private JFXButton guardarListaNew;
+
+	@FXML
+	private JFXButton cancelarNew;
+
+	@FXML
+	private JFXButton eliminarLista;
+
+	@FXML
+	private Label labelNombreLista;
+
+	private ListaCanciones listaAux;
+	private String nombreListaAux = "";
+	private AppMusic controlador = AppMusic.getUnicaInstancia();
+	private TableView tablaActual;
+	private double volumenAnterior = 100;
+	private MediaPlayer mediaPlayer;
+	private boolean repeat = false;
+	private boolean atEndOfMedia = false;
+	private Duration duration;
+	boolean mismaLista = false;
+	ObservableList<Cancion> cancionesLista;
+
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+		// init mediaplayer
+		setCarpetaCanciones();
+		construirMenu();
+		inicializarEstilos();
+		inicializarEstilosNew();
+		inicializarUsuario();
+		inicializarComboListas();
+		// cargarCancion(tablaReciente.getItems().get(0));
+		//tablaReciente.getSelectionModel().select(tablaReciente.getItems().get(0));
+		//mediaPlayer.stop();
+		// Cargamos una cancion de prueba e inicializamos el reproductor
+		// cargarCancion(new Cancion("Sirenas","Sirenas - Taburete.mp3",new
+		// EstiloMusical(EstiloMusical.POP),new Interprete("Taburete")));
+
+		KeyCombination play = new KeyCodeCombination(KeyCode.SPACE);
+		this.panelReproductor.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent event) {
+
+				if (play.match(event)) {
+					try {
+						playPause();
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
+	}
+
+	private void moverTexto() {
+		double sceneWidth = -50;
+		double msgWidth = textoBienvenido.getLayoutBounds().getWidth();
+
+		KeyValue initKeyValue = new KeyValue(textoBienvenido.translateXProperty(), sceneWidth);
+		KeyFrame initFrame = new KeyFrame(Duration.ZERO, initKeyValue);
+
+		KeyValue endKeyValue = new KeyValue(textoBienvenido.translateXProperty(), 1.0 * msgWidth);
+		KeyFrame endFrame = new KeyFrame(Duration.seconds(10), endKeyValue);
+
+		Timeline timeline = new Timeline(initFrame, endFrame);
+
+		timeline.setCycleCount(Timeline.INDEFINITE);
+		timeline.play();
+	}
+
+	public ImageView getBotonPlay() {
+		return botonPlay;
+	}
+
+	public ImageView getBotonPause() {
+		return botonPause;
+	}
+
+	public ImageView getBotonStop() {
+		return botonStop;
+	}
+
+	public ImageView getUnmuted() {
+		return this.unmuted;
+	}
+
+	public ImageView getMuted() {
+		return this.muted;
+	}
+
+	public void inicializarEstilos() {
+		estilo.setCellFactory(new Callback<ListView<EstiloMusical>, ListCell<EstiloMusical>>() {
+			@Override
+			public ListCell<EstiloMusical> call(ListView<EstiloMusical> param) {
+				final ListCell<EstiloMusical> cell = new ListCell<EstiloMusical>() {
+					{
+						super.setPrefWidth(100);
+					}
+
+					@Override
+					public void updateItem(EstiloMusical item, boolean empty) {
+						super.updateItem(item, empty);
+						if (item != null) {
+							setText(item.getNombre());
+						} else {
+							setText(null);
+						}
+					}
+				};
+				return cell;
+			}
+
+		});
+
+		estilo.setConverter(new StringConverter<EstiloMusical>() {
+
+			@Override
+			public String toString(EstiloMusical object) {
+				return object == null ? null : object.getNombre();
+			}
+
+			@Override
+			public EstiloMusical fromString(String string) {
+				return estilo.getItems().stream().filter(i -> i.getNombre().equals(string)).findAny().orElse(null);
+			}
+
+		});
+
+		for (EstiloMusical estAux : controlador.getEstilos()) {
+			estilo.getItems().add(estAux);
+		}
+	}
+
+	public void inicializarEstilosNew() {
+		estiloNew.setCellFactory(new Callback<ListView<EstiloMusical>, ListCell<EstiloMusical>>() {
+			@Override
+			public ListCell<EstiloMusical> call(ListView<EstiloMusical> param) {
+				final ListCell<EstiloMusical> cell = new ListCell<EstiloMusical>() {
+					{
+						super.setPrefWidth(100);
+					}
+
+					@Override
+					public void updateItem(EstiloMusical item, boolean empty) {
+						super.updateItem(item, empty);
+						if (item != null) {
+							setText(item.getNombre());
+						} else {
+							setText(null);
+						}
+					}
+				};
+				return cell;
+			}
+
+		});
+
+		estiloNew.setConverter(new StringConverter<EstiloMusical>() {
+
+			@Override
+			public String toString(EstiloMusical object) {
+				return object == null ? null : object.getNombre();
+			}
+
+			@Override
+			public EstiloMusical fromString(String string) {
+				return estiloNew.getItems().stream().filter(i -> i.getNombre().equals(string)).findAny().orElse(null);
+			}
+
+		});
+
+		for (EstiloMusical estAux : controlador.getEstilos()) {
+			estiloNew.getItems().add(estAux);
+		}
+	}
+
+	@FXML
+	private void cerrarSesion(ActionEvent event) throws IOException {
+		System.out.println("Sesion Cerrada");
+		// controlador.cerrarSesion();
+
+		// cerramos la ventana actual
+		Stage aux = (Stage) panelPrincipal.getScene().getWindow();
+		aux.close();
+		if(mediaPlayer != null) {
+			mediaPlayer.dispose();
+		}
+		controlador.cerrarSesion();
+
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/tds/um/vista/fxml/login.fxml"));
+		Parent root = loader.load();
+		Scene scene = new Scene(root);
+		Stage appStage = new Stage();
+		appStage.setMinWidth(550);
+		appStage.setMinHeight(450);
+
+		appStage.setResizable(true);
+
+		appStage.setScene(scene);
+		appStage.show();
+	}
+
+	@FXML
+	private void mejorarCuenta(ActionEvent event) {
+
+		System.out.println("Cuenta Mejorada");
+	}
+
+	public void inicializarMediaPlayer() {
+
+		try {
+			com.sun.javafx.application.PlatformImpl.startup(() -> {
+			});
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.out.println("Exception: " + ex.getMessage());
+		}
+		mediaPlayer.setVolume(volumenAnterior);
+
+		mediaPlayer.currentTimeProperty().addListener(new InvalidationListener() {
+			public void invalidated(Observable ov) {
+				updateValues();
+			}
+		});
+
+		mediaPlayer.setOnPlaying(new Runnable() {
+			public void run() {
+				getBotonPlay().setVisible(false);
+				getBotonPause().setVisible(true);
+			}
+		});
+
+		mediaPlayer.setOnPaused(new Runnable() {
+			public void run() {
+				getBotonPause().setVisible(false);
+				getBotonPlay().setVisible(true);
+			}
+		});
+
+		mediaPlayer.setOnReady(new Runnable() {
+			public void run() {
+				duration = mediaPlayer.getMedia().getDuration();
+				updateValues();
+			}
+		});
+
+		mediaPlayer.setCycleCount(repeat ? MediaPlayer.INDEFINITE : 1);
+		mediaPlayer.setOnEndOfMedia(new Runnable() {
+			public void run() {
+				if (!repeat) {
+					if (tablaActual != null) {
+						volumenAnterior = mediaPlayer.getVolume();
+						next(null);
+						mediaPlayer.setVolume(volumenAnterior);
+						updateValues();
+						mediaPlayer.play();
+					} else {
+						getBotonPause().setVisible(false);
+						getBotonPlay().setVisible(true);
+						mediaPlayer.seek(mediaPlayer.getStartTime());
+						mediaPlayer.pause();
+						updateValues();
+					}
+				} else {
+					mediaPlayer.seek(mediaPlayer.getStartTime());
+					updateValues();
+				}
+			}
+		});
+
+		// listeners del slider de tiempo
+
+		timeSlider.valueProperty().addListener(new InvalidationListener() {
+			public void invalidated(Observable ov) {
+				if (timeSlider.isValueChanging()) {
+					mediaPlayer.seek(duration.multiply(timeSlider.getValue() / 100.0));
+				}
+			}
+		});
+
+		timeSlider.valueProperty().addListener(new ChangeListener() {
+			@Override
+			public void changed(ObservableValue arg0, Object arg1, Object arg2) {
+
+				if (timeSlider.isPressed()) {
+					mediaPlayer.seek(duration.multiply(timeSlider.getValue() / 100.0));
+				}
+			}
+		});
+
+		// Listener del slider de volumen
+		volumeSlider.valueProperty().addListener(new ChangeListener() {
+
+			@Override
+			public void changed(ObservableValue arg0, Object arg1, Object arg2) {
+				if (mediaPlayer.getVolume() == 0) {
+					getMuted().setVisible(false);
+					getUnmuted().setVisible(true);
+					mediaPlayer.setMute(false);
+				}
+				if (volumeSlider.getValue() == 0 && !mediaPlayer.isMute()) {
+					getMuted().setVisible(true);
+					getUnmuted().setVisible(false);
+					mediaPlayer.setMute(true);
+				}
+				mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
+			}
+		});
+
+	}
+
+	public void cargarCancion(Cancion cancion) {
+		if (cancion != null) {
+			File f;
+			try {
+				if (mediaPlayer != null) {
+					volumenAnterior = mediaPlayer.getVolume();
+					mediaPlayer.dispose();
+				}
+				Image disco = new Image(
+						this.getClass().getResource("/tds/um/vista/fxml/imagenes/disco.png").toURI().toString());
+				albumCover.setImage(disco);
+
+				// f = new
+				// File(this.getClass().getResource("/canciones/"+cancion.getRutaFichero()).toURI());
+				//f = new File(this.getClass().getResource("/canciones/" + cancion.getRutaFichero()).toURI());
+				// f = new
+				// File(InterfazController.class.getClassLoader().getResource("canciones/"+cancion.getRutaFichero()).toURI().toString());
+				
+				f = new File(cancion.getRutaFichero());
+				interpreteCancionActual.setText(cancion.getInterprete().getNombre());
+				tituloCancionActual.setText(cancion.getTitulo());
+				controlador.addNumReproducciones(cancion);
+				Media hit = new Media(f.toURI().toString());
+				hit.getMetadata().addListener(new MapChangeListener<String, Object>() {
+					@Override
+					public void onChanged(Change<? extends String, ? extends Object> ch) {
+						if (ch.wasAdded()) {
+							handleMetadata(ch.getKey(), ch.getValueAdded());
+						}
+					}
+				});
+
+				mediaPlayer = new MediaPlayer(hit);
+				inicializarMediaPlayer();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	/*
+	public void cargarCancion(Cancion cancion) {
+		// Se reproduce la cancion.
+		AppMusic.getUnicaInstancia().cargarCatalogoCanciones();
+	}
+	*/
+
+	private void handleMetadata(String key, Object value) {
+		if (key.equals("image")) {
+			albumCover.setImage((Image) value);
+		}
+	}
+
+	public void next(MouseEvent event) {
+		if (tablaActual.getSelectionModel().getSelectedIndex() + 1 < tablaActual.getItems().size()) {
+			volumenAnterior = mediaPlayer.getVolume();
+			tablaActual.getSelectionModel().selectNext();
+			mediaPlayer.setVolume(volumenAnterior);
+			updateValues();
+			mediaPlayer.play();
+		} else {
+			tablaActual.getSelectionModel().selectFirst();
+		}
+	}
+
+	public void previous(MouseEvent event) {
+		if (tablaActual.getSelectionModel().getSelectedIndex() - 1 >= 0) {
+			volumenAnterior = mediaPlayer.getVolume();
+			tablaActual.getSelectionModel().selectPrevious();
+			mediaPlayer.setVolume(volumenAnterior);
+			updateValues();
+			mediaPlayer.play();
+		} else {
+			tablaActual.getSelectionModel().selectLast();
+		}
+	}
+
+	public void mute(MouseEvent event) {
+		if (mediaPlayer.isMute()) {
+			this.unmuted.setVisible(true);
+			this.muted.setVisible(false);
+			mediaPlayer.setMute(false);
+			mediaPlayer.setVolume(volumenAnterior);
+		} else {
+			this.muted.setVisible(true);
+			this.unmuted.setVisible(false);
+			mediaPlayer.setMute(true);
+			volumenAnterior = mediaPlayer.getVolume();
+			volumeSlider.setValue(0);
+		}
+	}
+
+	public void playPause() throws URISyntaxException {
+
+		Status status = mediaPlayer.getStatus();
+
+		if (status == Status.UNKNOWN || status == Status.HALTED) {
+			// don't do anything in these states
+			return;
+		}
+
+		if (status == Status.PAUSED || status == Status.READY || status == Status.STOPPED) {
+			if (atEndOfMedia) {
+				mediaPlayer.seek(mediaPlayer.getStartTime());
+				atEndOfMedia = false;
+			}
+			mediaPlayer.play();
+		} else {
+			mediaPlayer.pause();
+		}
+	}
+
+	public void stop(MouseEvent event) {
+		this.botonPause.setVisible(false);
+		this.botonPlay.setVisible(true);
+		mediaPlayer.seek(mediaPlayer.getStartTime());
+		updateValues();
+		mediaPlayer.pause();
+
+	}
+
+	public void repeat(MouseEvent event) {
+		if (repeat == true) {
+			this.botonReplay.setVisible(true);
+			this.botonReplayPress.setVisible(false);
+			repeat = false;
+		} else {
+			this.botonReplayPress.setVisible(true);
+			this.botonReplay.setVisible(false);
+			repeat = true;
+		}
+	}
+
+	private void construirMenu() {
+
+		Label explorarLabel = new Label("Explorar");
+		Label nuevaListaLabel = new Label("Nueva Lista");
+		Label recienteLabel = new Label("Reciente");
+		Label misListasLabel = new Label("Mis Listas");
+
+		PanelLabel explorar = new PanelLabel(explorarLabel, panelExplorar);
+		PanelLabel reciente = new PanelLabel(recienteLabel, panelReciente);
+		PanelLabel nuevaLista = new PanelLabel(nuevaListaLabel, panelNuevaLista);
+		PanelLabel misListas = new PanelLabel(misListasLabel, panelMisListas);
+
+		list.getItems().addAll(explorar, reciente, nuevaLista, misListas);
+
+		list.setCellFactory(new Callback<ListView<PanelLabel>, ListCell<PanelLabel>>() {
+
+			@Override
+			public JFXListCell<PanelLabel> call(ListView<PanelLabel> param) {
+				JFXListCell<PanelLabel> cell = new JFXListCell<PanelLabel>() {
+
+					@Override
+					protected void updateItem(PanelLabel item, boolean empty) {
+						super.updateItem(item, empty);
+						if (item != null) {
+							setText(item.etiqueta.getText());
+						} else {
+							setText("");
+						}
+					}
+				};
+				return cell;
+			}
+		});
+
+		list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PanelLabel>() {
+			@Override
+			public void changed(ObservableValue<? extends PanelLabel> observable, PanelLabel oldValue,
+					PanelLabel newValue) {
+				PanelLabel aux = list.getSelectionModel().getSelectedItem();
+				aux.getPanel().setVisible(true);
+				for (PanelLabel p : list.getItems()) {
+					if (!p.etiqueta.getText().equals(aux.getEtiqueta().getText())) {
+						p.getPanel().setVisible(false);
+					}
+				}
+				if (aux.getEtiqueta().equals(misListasLabel)) {
+					panelMisListas.setVisible(true);
+					inicializarMisListas();
+				} else if (aux.getEtiqueta().equals(recienteLabel)) {
+					cargarRecientes();
+					listaRepMenu.setVisible(false);
+				} else {
+					listaRepMenu.setVisible(false);
+				}
+			}
+		});
+
+	}
+
+	private class PanelLabel {
+
+		private Label etiqueta;
+		private Pane panel;
+
+		public PanelLabel(Label etiqueta, Pane panel) {
+			this.etiqueta = etiqueta;
+			this.panel = panel;
+		}
+
+		public Label getEtiqueta() {
+			return this.etiqueta;
+		}
+
+		public Pane getPanel() {
+			return this.panel;
+		}
+
+	}
+
+	private void inicializarMisListas() {
+		listaRepMenu.getItems().clear();
+		listaRepMenu.setVisible(true);
+		tablaMisListas.setVisible(false);
+		labelLista.setText("Selecciona una PlayList");
+
+		listaRepMenu.setCellFactory(new Callback<ListView<ListaCanciones>, ListCell<ListaCanciones>>() {
+
+			@Override
+			public JFXListCell<ListaCanciones> call(ListView<ListaCanciones> param) {
+				JFXListCell<ListaCanciones> cell = new JFXListCell<ListaCanciones>() {
+
+					@Override
+					protected void updateItem(ListaCanciones item, boolean empty) {
+						super.updateItem(item, empty);
+						if (item != null) {
+							setText("► " + item.getNombreLista());
+						} else {
+							setText("");
+						}
+					}
+				};
+				return cell;
+			}
+		});
+
+		for (ListaCanciones listaCanciones : controlador.recuperarListasUsuario(controlador.getCurrentUser())) {
+			listaRepMenu.getItems().add(listaCanciones);
+		}
+
+		listaRepMenu.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ListaCanciones>() {
+			@Override
+			public void changed(ObservableValue<? extends ListaCanciones> observable, ListaCanciones oldValue,
+					ListaCanciones newValue) {
+				cargarLista(listaRepMenu.getSelectionModel().getSelectedItem());
+			}
+		});
+	}
+
+	public void realizarBusqueda() {
+
+		this.tablaBusqueda.setVisible(true);
+		// this.tablaActual = tablaBusqueda;
+		this.tablaBusqueda.getItems().clear();
+		tablaBusqueda.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		TableColumn<Cancion, String> tituloCol = new TableColumn<>("Titulo");
+		TableColumn<Cancion, String> interpreteCol = new TableColumn<>("Interprete");
+
+		tituloCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitulo()));
+		interpreteCol.setCellValueFactory(
+				cellData -> new SimpleStringProperty(cellData.getValue().getInterprete().getNombre()));
+
+		ObservableList<Cancion> canciones = FXCollections.observableArrayList(
+				controlador.busquedaCanciones(titulo.getText(), interprete.getText(), estilo.getValue()));
+
+		tablaBusqueda.setItems(canciones);
+		tablaBusqueda.getColumns().setAll(tituloCol, interpreteCol);
+
+		cm.getItems().clear();
+
+		MenuItem mi1 = new MenuItem("Reproducir");
+		// mi1.setStyle("");
+		cm.getItems().add(mi1);
+
+		Menu mi2 = new Menu("Añadir a PlayList");
+
+		cm.getItems().add(mi2);
+
+		MenuItem nueva = new MenuItem("Nueva Lista");
+		SeparatorMenuItem sep = new SeparatorMenuItem();
+
+		mi2.getItems().add(nueva);
+		mi2.getItems().add(sep);
+
+		// Recuperamos listas para construir contextmenu de listas
+		for (ListaCanciones listaCanciones : controlador.recuperarListasUsuario(controlador.getCurrentUser())) {
+			MenuItem aux = new MenuItem(listaCanciones.getNombreLista());
+			mi2.getItems().add(aux);
+			// aux.setToggleGroup(grupoLista);
+			// TODO:GESTION MENUS
+			aux.setOnAction(new EventHandler<ActionEvent>() {
+				public void handle(ActionEvent t) {
+					// añadir cancion a lista x
+					controlador.addCancionPlaylist(
+							controlador.getCurrentUser(),tablaBusqueda.getItems().get(tablaBusqueda.getSelectionModel().getFocusedIndex()),
+							listaCanciones);
+					Notifications.create().position(Pos.TOP_RIGHT).darkStyle().title("Canción añadida")
+							.text(tablaBusqueda.getItems().get(tablaBusqueda.getSelectionModel().getFocusedIndex())
+									.getTitulo() + " añadida a la playlist " + listaCanciones.getNombreLista())
+							.showConfirm();
+				}
+			});
+		}
+
+		// Listener para reproducir la cancion
+
+		tablaBusqueda.addEventHandler(MouseEvent.ANY, event -> {
+			if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+				if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+
+					cargarCancion(tablaBusqueda.getSelectionModel().getSelectedItem());
+					tablaActual = tablaBusqueda;
+					mediaPlayer.play();
+
+					// tablaBusqueda.getSelectionModel().select(tablaBusqueda.getSelectionModel().getSelectedIndex()
+				}
+
+				event.consume();
+			}
+
+		});
+
+		tablaBusqueda.setRowFactory(tv -> {
+			TableRow<Cancion> row = new TableRow<>();
+			row.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+				if (e.getButton() == MouseButton.SECONDARY) {
+					e.consume();
+					// TODO:GESTION DE MENUS REALIZAR BUSQUEDA
+					tablaBusqueda.setContextMenu(cm);
+					mi1.setOnAction(new EventHandler<ActionEvent>() {
+						public void handle(ActionEvent t) {
+							tablaBusqueda.getSelectionModel().select(row.getIndex());
+						}
+					});
+				}
+
+				if (e.getClickCount() == 1) {
+					e.consume();
+					tablaBusqueda.getSelectionModel().focus(row.getIndex());
+				}
+				tablaBusqueda.requestFocus();
+			});
+
+			return row;
+		});
+
+		tablaBusqueda.getSelectionModel().selectedItemProperty().addListener((v, oldValue, newValue) -> {
+			cargarCancion(tablaBusqueda.getSelectionModel().getSelectedItem());
+			tablaActual = tablaBusqueda;
+			mediaPlayer.play();
+
+		});
+
+	}
+
+	public void cargarRecientes() {
+
+		this.tablaReciente.setVisible(true);
+		// this.tablaActual = tablaReciente;
+		this.tablaReciente.getItems().clear();
+		tablaReciente.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		TableColumn<Cancion, String> tituloCol = new TableColumn<>("Titulo");
+		TableColumn<Cancion, String> interpreteCol = new TableColumn<>("Interprete");
+
+		tituloCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitulo()));
+		interpreteCol.setCellValueFactory(
+				cellData -> new SimpleStringProperty(cellData.getValue().getInterprete().getNombre()));
+		// TODO :REVISAR ESTO
+		tablaReciente.prefHeightProperty().bind(panelReciente.heightProperty());
+
+		ObservableList<Cancion> canciones = FXCollections.observableArrayList(controlador.getCancionesRecientes());
+
+		tablaReciente.setItems(canciones);
+		tablaReciente.getColumns().setAll(tituloCol, interpreteCol);
+
+		ContextMenu cm1 = new ContextMenu();
+		cm1.getItems().clear();
+
+		MenuItem mi1 = new MenuItem("Reproducir");
+		cm1.getItems().add(mi1);
+
+		Menu mi2 = new Menu("Añadir a PlayList");
+
+		cm1.getItems().add(mi2);
+
+		MenuItem nueva = new MenuItem("Nueva Lista");
+		SeparatorMenuItem sep = new SeparatorMenuItem();
+
+		mi2.getItems().add(nueva);
+		mi2.getItems().add(sep);
+
+		// Recuperamos listas para construir contextmenu de listas
+		for (ListaCanciones listaCanciones : controlador.recuperarListasUsuario(controlador.getCurrentUser())) {
+			MenuItem aux = new MenuItem(listaCanciones.getNombreLista());
+			mi2.getItems().add(aux);
+			// aux.setToggleGroup(grupoLista);
+			aux.setOnAction(new EventHandler<ActionEvent>() {
+				public void handle(ActionEvent t) {
+					// añadir cancion a lista x
+					controlador.addCancionPlaylist(
+							controlador.getCurrentUser(),tablaReciente.getItems().get(tablaReciente.getSelectionModel().getFocusedIndex()),
+							listaCanciones);
+					Notifications.create().position(Pos.TOP_RIGHT).darkStyle().title("Canción añadida")
+							.text(tablaReciente.getItems().get(tablaReciente.getSelectionModel().getFocusedIndex())
+									.getTitulo() + " añadida a la playlist " + listaCanciones.getNombreLista())
+							.showConfirm();
+				}
+			});
+		}
+
+		// Listener para reproducir la cancion
+
+		tablaReciente.addEventHandler(MouseEvent.ANY, event -> {
+			if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+				if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+
+					cargarCancion(tablaReciente.getSelectionModel().getSelectedItem());
+					tablaActual = tablaReciente;
+					mediaPlayer.play();
+
+					// tablaReciente.getSelectionModel().select(tablaReciente.getSelectionModel().getSelectedIndex()
+				}
+
+				event.consume();
+			}
+
+		});
+
+		tablaReciente.setRowFactory(tv -> {
+			TableRow<Cancion> row = new TableRow<>();
+			row.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+				if (e.getButton() == MouseButton.SECONDARY) {
+					e.consume();
+					tablaReciente.setContextMenu(cm1);
+					mi1.setOnAction(new EventHandler<ActionEvent>() {
+						public void handle(ActionEvent t) {
+							tablaReciente.getSelectionModel().select(row.getIndex());
+						}
+					});
+				}
+
+				if (e.getClickCount() == 1) {
+					e.consume();
+					tablaReciente.getSelectionModel().focus(row.getIndex());
+				}
+				tablaReciente.requestFocus();
+			});
+
+			return row;
+		});
+
+		tablaReciente.getSelectionModel().selectedItemProperty().addListener((v, oldValue, newValue) -> {
+			cargarCancion(tablaReciente.getSelectionModel().getSelectedItem());
+			tablaActual = tablaReciente;
+			mediaPlayer.play();
+
+		});
+	}
+
+	@FXML
+	public void busquedaNueva() {
+
+		this.tablaBusquedaNueva.setVisible(true);
+		// this.tablaActual = tablaBusqueda;
+		this.tablaBusquedaNueva.getItems().clear();
+		tablaBusquedaNueva.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		TableColumn<Cancion, String> tituloCol = new TableColumn<>("Titulo");
+		TableColumn<Cancion, String> interpreteCol = new TableColumn<>("Interprete");
+
+		tituloCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitulo()));
+		interpreteCol.setCellValueFactory(
+				cellData -> new SimpleStringProperty(cellData.getValue().getInterprete().getNombre()));
+
+		ObservableList<Cancion> canciones = FXCollections.observableArrayList(
+				controlador.busquedaCanciones(tituloNew.getText(), interpreteNew.getText(), estiloNew.getValue()));
+
+		tablaBusquedaNueva.setItems(canciones);
+		tablaBusquedaNueva.getColumns().setAll(tituloCol, interpreteCol);
+
+		/*
+		 * cm.getItems().clear();
+		 * 
+		 * MenuItem mi1 = new MenuItem("Reproducir"); //mi1.setStyle("");
+		 * cm.getItems().add(mi1);
+		 * 
+		 * 
+		 * Menu mi2 = new Menu("Añadir a PlayList");
+		 * 
+		 * cm.getItems().add(mi2);
+		 * 
+		 * MenuItem nueva = new MenuItem("Nueva Lista"); SeparatorMenuItem sep = new
+		 * SeparatorMenuItem();
+		 * 
+		 * mi2.getItems().add(nueva); mi2.getItems().add(sep);
+		 * 
+		 * 
+		 * //Recuperamos listas para construir contextmenu de listas for (ListaCanciones
+		 * listaCanciones :
+		 * controlador.recuperarListasUsuario(controlador.getCurrentUser())) { MenuItem
+		 * aux = new MenuItem(listaCanciones.getNombreLista()); mi2.getItems().add(aux);
+		 * //aux.setToggleGroup(grupoLista); //TODO:GESTION MENUS aux.setOnAction(new
+		 * EventHandler<ActionEvent>() { public void handle(ActionEvent t) { //añadir
+		 * cancion a lista x
+		 * controlador.addCancionPlaylist(tablaBusquedaNueva.getItems().get(
+		 * tablaBusquedaNueva.getSelectionModel().getFocusedIndex()), listaCanciones);
+		 * Notifications.create().position(Pos.TOP_RIGHT).darkStyle().
+		 * title("Canción añadida").text(tablaBusquedaNueva.getItems().get(
+		 * tablaBusquedaNueva.getSelectionModel().getFocusedIndex()).getTitulo()
+		 * +" añadida a la playlist "+ listaCanciones.getNombreLista()).showConfirm(); }
+		 * }); }
+		 */
+
+		// Listener para reproducir la cancion
+
+		tablaBusquedaNueva.addEventHandler(MouseEvent.ANY, event -> {
+			if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+				if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+
+					cargarCancion(tablaBusquedaNueva.getSelectionModel().getSelectedItem());
+					mediaPlayer.play();
+
+					// tablaBusquedaNueva.getSelectionModel().select(tablaBusquedaNueva.getSelectionModel().getSelectedIndex()
+				}
+
+				event.consume();
+			}
+
+		});
+
+		tablaBusquedaNueva.setRowFactory(tv -> {
+			TableRow<Cancion> row = new TableRow<>();
+			row.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+				if (e.getClickCount() == 1) {
+					e.consume();
+					tablaBusquedaNueva.getSelectionModel().focus(row.getIndex());
+				}
+				tablaBusquedaNueva.requestFocus();
+			});
+
+			return row;
+		});
+
+		tablaBusquedaNueva.getSelectionModel().selectedItemProperty().addListener((v, oldValue, newValue) -> {
+			cargarCancion(tablaBusquedaNueva.getSelectionModel().getSelectedItem());
+			tablaActual = tablaBusquedaNueva;
+			mediaPlayer.play();
+
+		});
+
+	}
+
+	private void cargarLista(ListaCanciones lista) {
+
+		tablaMisListas = new TableView<Cancion>();
+		panelMisListas.add(tablaMisListas, 0, 1);
+		this.tablaMisListas.setVisible(true);
+		this.tablaActual = tablaMisListas;
+		tablaMisListas.getItems().clear();
+
+		tablaMisListas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		TableColumn<Cancion, String> tituloCol = new TableColumn<>("Titulo");
+		TableColumn<Cancion, String> interpreteCol = new TableColumn<>("Interprete");
+
+		tituloCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitulo()));
+		interpreteCol.setCellValueFactory(
+				cellData -> new SimpleStringProperty(cellData.getValue().getInterprete().getNombre()));
+		if (lista != null) {
+			labelLista.setText(lista.getNombreLista());
+			ObservableList<Cancion> canciones = FXCollections.observableArrayList(lista.getCanciones());
+			tablaMisListas.setItems(canciones);
+		}
+
+		tablaMisListas.getColumns().setAll(tituloCol, interpreteCol);
+
+		tablaMisListas.addEventHandler(MouseEvent.ANY, event -> {
+			if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+				if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+
+					cargarCancion(tablaMisListas.getSelectionModel().getSelectedItem());
+					mediaPlayer.play();
+					// tablaMisListas.getSelectionModel().select(tablaMisListas.getSelectionModel().getSelectedIndex());
+
+				}
+
+				event.consume();
+			}
+
+		});
+
+		ContextMenu cMenu = new ContextMenu();
+		cMenu.getItems().clear();
+
+		MenuItem mi1 = new MenuItem("Reproducir");
+		cMenu.getItems().add(mi1);
+
+		Menu mi2 = new Menu("Añadir a PlayList");
+
+		cMenu.getItems().add(mi2);
+
+		MenuItem nueva = new MenuItem("Nueva Lista");
+		SeparatorMenuItem sep = new SeparatorMenuItem();
+
+		mi2.getItems().add(nueva);
+		mi2.getItems().add(sep);
+		MenuItem mi3 = new MenuItem("Eliminar de la PlayList");
+
+		cMenu.getItems().add(mi3);
+
+		for (ListaCanciones listaCanciones : controlador.recuperarListasUsuario(controlador.getCurrentUser())) {
+			MenuItem aux = new MenuItem(listaCanciones.getNombreLista());
+			mi2.getItems().add(aux);
+			aux.setOnAction(new EventHandler<ActionEvent>() {
+				public void handle(ActionEvent t) {
+					// Esto es para actualizar la lista si se añade una cancion a la misma lista
+					// (spotify actua asi).
+					// TODO:Buscar otra comprobaciónpor que cabe la posibilidad de que al hacer el
+					// equals, dos listas tengan los mismos elementos y la lie y carge la otra lista
+					// xD
+					if (tablaMisListas.getItems().equals(listaCanciones.getCanciones())) {
+						mismaLista = true;
+						controlador.addCancionPlaylist(
+								controlador.getCurrentUser(),tablaMisListas.getItems().get(tablaMisListas.getSelectionModel().getFocusedIndex()),
+								listaCanciones);
+						int indice = tablaMisListas.getSelectionModel().getSelectedIndex();
+						Notifications.create().position(Pos.TOP_RIGHT).darkStyle().title("Canción añadida")
+								.text(tablaMisListas.getItems()
+										.get(tablaMisListas.getSelectionModel().getFocusedIndex()).getTitulo()
+										+ " añadida a la playlist " + listaCanciones.getNombreLista())
+								.showConfirm();
+						cargarLista(listaCanciones);
+						tablaMisListas.getSelectionModel().select(indice);
+						mismaLista = false;
+
+					} else {
+						controlador.addCancionPlaylist(
+								controlador.getCurrentUser(),tablaMisListas.getItems().get(tablaMisListas.getSelectionModel().getFocusedIndex()),
+								listaCanciones);
+						Notifications.create().position(Pos.TOP_RIGHT).darkStyle().title("Canción añadida")
+								.text(tablaMisListas.getItems()
+										.get(tablaMisListas.getSelectionModel().getFocusedIndex()).getTitulo()
+										+ " añadida a la playlist " + listaCanciones.getNombreLista())
+								.showConfirm();
+					}
+				}
+			});
+		}
+
+		tablaMisListas.setRowFactory(tv -> {
+			TableRow<Cancion> row = new TableRow<>();
+			row.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+				if (e.getButton() == MouseButton.SECONDARY) {
+					e.consume();
+					// TODO:Gestion de menús
+					tablaMisListas.setContextMenu(cMenu);
+					mi1.setOnAction(new EventHandler<ActionEvent>() {
+						public void handle(ActionEvent t) {
+							tablaMisListas.getSelectionModel().select(row.getIndex());
+						}
+					});
+
+				}
+
+				if (e.getClickCount() == 1) {
+					e.consume();
+					tablaMisListas.getSelectionModel().focus(row.getIndex());
+				}
+				tablaMisListas.requestFocus();
+			});
+
+			return row;
+		});
+
+		tablaMisListas.getSelectionModel().selectedItemProperty().addListener((v, oldValue, newValue) -> {
+
+			if (!mismaLista) {
+				cargarCancion(tablaMisListas.getSelectionModel().getSelectedItem());
+				mediaPlayer.play();
+			}
+		});
+
+	}
+
+	private void inicializarComboListas() {
+
+		comboListas.setCellFactory(new Callback<ListView<ListaCanciones>, ListCell<ListaCanciones>>() {
+			@Override
+			public ListCell<ListaCanciones> call(ListView<ListaCanciones> param) {
+				final ListCell<ListaCanciones> cell = new ListCell<ListaCanciones>() {
+					{
+						super.setPrefWidth(100);
+					}
+
+					@Override
+					public void updateItem(ListaCanciones item, boolean empty) {
+						super.updateItem(item, empty);
+						if (item != null) {
+							setText(item.getNombreLista());
+						} else {
+							setText(null);
+						}
+					}
+				};
+				return cell;
+			}
+
+		});
+
+		comboListas.setConverter(new StringConverter<ListaCanciones>() {
+
+			@Override
+			public String toString(ListaCanciones object) {
+				return object == null ? null : object.getNombreLista();
+			}
+
+			@Override
+			public ListaCanciones fromString(String string) {
+				return comboListas.getItems().stream().filter(i -> i.getNombreLista().equals(string)).findAny()
+						.orElse(null);
+			}
+
+		});
+		
+		
+		for (ListaCanciones lista : controlador.recuperarListasUsuario(controlador.getCurrentUser())) {
+			comboListas.getItems().add(lista);
+		}
+		
+		//comboListas.setItems(FXCollections.observableArrayList(controlador.getCurrentUser().getListasReproduccion()));
+	}
+
+	@FXML
+	private void verLista() {
+
+		this.tablaNuevaLista.setVisible(true);
+		// this.tablaActual = tablaNuevaLista;
+		this.tablaNuevaLista.getItems().clear();
+		tablaNuevaLista.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+		TableColumn<Cancion, String> tituloCol = new TableColumn<>("Titulo");
+		TableColumn<Cancion, String> interpreteCol = new TableColumn<>("Interprete");
+
+		tituloCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitulo()));
+		interpreteCol.setCellValueFactory(
+				cellData -> new SimpleStringProperty(cellData.getValue().getInterprete().getNombre()));
+
+		if (comboListas.getValue() != null) {
+
+			cancionesLista = FXCollections.observableArrayList(comboListas.getValue().getCanciones());
+			labelNombreLista.setText(comboListas.getValue().getNombreLista());
+			nombreListaAux = comboListas.getValue().getNombreLista();
+		} else {
+			// Sacamos el dialog y preguntamos si queremos crear lista
+
+			JFXDialogLayout content = new JFXDialogLayout();
+			content.setHeading(new Text("Esta lista no existe, deseas crear una nueva?"));
+
+			JFXDialog dialog = new JFXDialog(this.panelPila, content, JFXDialog.DialogTransition.CENTER);
+			JFXButton buttonSi = new JFXButton("Si");
+			JFXButton buttonNo = new JFXButton("No");
+			buttonSi.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					cancionesLista = FXCollections.observableArrayList(new ArrayList<Cancion>());
+
+					JFXDialogLayout content1 = new JFXDialogLayout();
+					content1.setHeading(new Text("Escribe el nombre de la lista"));
+					JFXDialog dialog1 = new JFXDialog(panelPila, content1, JFXDialog.DialogTransition.CENTER);
+					JFXTextField tf = new JFXTextField();
+
+					tf.setPrefWidth(100);
+					tf.setMaxWidth(Control.USE_PREF_SIZE);
+					JFXButton loTengo = new JFXButton("Lo tengo!");
+
+					loTengo.setOnAction(new EventHandler<ActionEvent>() {
+						@Override
+						public void handle(ActionEvent event) {
+							nombreListaAux = tf.getText();
+							labelNombreLista.setText(nombreListaAux);
+							dialog1.close();
+						}
+
+					});
+
+					content1.setBody(tf);
+					content1.setActions(loTengo);
+					dialog1.show();
+					dialog.close();
+				}
+			});
+			buttonNo.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					cancionesLista = null;
+					dialog.close();
+				}
+			});
+			content.setActions(buttonSi, new Label("  "), buttonNo);
+			dialog.show();
+
+		}
+		if (cancionesLista != null) {
+			tablaNuevaLista.setItems(cancionesLista);
+			tablaNuevaLista.getColumns().setAll(tituloCol, interpreteCol);
+		}
+	}
+
+	@FXML
+	private void eliminarLista() {
+		if (comboListas.getValue() != null) {
+			// eliminar lista
+			controlador.borrarListaCanciones(controlador.getCurrentUser(),comboListas.getValue());
+		}
+	}
+
+	@FXML
+	private void addNueva() {
+		if (tablaBusquedaNueva != null && tablaBusquedaNueva.getSelectionModel().getSelectedCells().size() > 0) {
+			tablaNuevaLista.getItems().add(tablaBusquedaNueva.getSelectionModel().getSelectedItem());
+		}
+	}
+
+	@FXML
+	private void remNueva() {
+		if (!tablaNuevaLista.getSelectionModel().isEmpty()) {
+			tablaNuevaLista.getItems().remove(tablaNuevaLista.getSelectionModel().getSelectedIndex());
+		}
+	}
+
+	@FXML
+	private void guardarLista() {
+		controlador.guardarLista(controlador.getCurrentUser(),nombreListaAux,tablaNuevaLista.getItems());
+	}
+
+	@FXML
+	private void cancelarNew() {
+		nombreListaAux = "";
+		labelNombreLista.setText(nombreListaAux);
+		tablaNuevaLista.getItems().clear();
+		// tablaNuevaLista.setVisible(false);
+
+	}
+
+	public void inicializarUsuario() {
+		cargarRecientes();
+		final Circle clip = new Circle(15.5, 15.5, 15.5);
+		imagenUser.setClip(clip);
+		textoBienvenido.setText("¡Bienvenido " + controlador.getCurrentUser().getNombre() + "!");
+		menuUsuario.setText(controlador.getCurrentUser().getNickUsuario());
+		moverTexto();
+		setImagenUser();
+	}
+
+	public void setImagenUser(Image avatar) {
+		imagenUser.setImage(avatar);
+	}
+
+	public void setImagenUser() {
+		if (controlador.getCurrentUser().getRutaAvatar() != null) {
+			// File file = controlador.getCurrentUser().getRutaAvatar();
+			InputStream is;
+			try {
+				is = new URL(controlador.getCurrentUser().getRutaAvatar()).openStream();
+				Image image = new Image(is);
+				imagenUser.setImage(image);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		} else {
+			try {
+				Image defaultAvatar = new Image(
+						this.getClass().getResource("/tds/um/vista/fxml/imagenes/user.png").toURI().toString());
+				imagenUser.setImage(defaultAvatar);
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void cambiarAvatar(ActionEvent event) {
+		FileChooser fileChooser = new FileChooser();
+
+		// filtro de extension
+		FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
+		FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
+		fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
+
+		// dialog de eleccion de archivo
+		File file = fileChooser.showOpenDialog(null);
+
+		Image image = new Image(file.toURI().toString());
+		setImagenUser(image);
+		controlador.cambiarAvatar(file.toURI().toString());
+	}
+	
+	public void setCarpetaCanciones() {		
+		DirectoryChooser chooser = new DirectoryChooser();
+		chooser.setTitle("Elige la carpeta donde estan las canciones");
+		File defaultDirectory = new File("/");
+		chooser.setInitialDirectory(defaultDirectory);
+		File ruta = chooser.showDialog(null);
+		controlador.cargarCatalogoCanciones(ruta.getAbsolutePath());
+		
+	}
+
+	protected void updateValues() {
+		if (transcurrido != null && duracion != null && timeSlider != null && volumeSlider != null) {
+			Platform.runLater(new Runnable() {
+				public void run() {
+					Duration currentTime = mediaPlayer.getCurrentTime();
+					String formatedTime = formatTime(currentTime, duration);
+					String[] parts = formatedTime.split("/");
+					String tTranscurrido = parts[0];
+					String tDuracion = parts[1];
+					transcurrido.setText(tTranscurrido);
+					duracion.setText(tDuracion);
+					timeSlider.setDisable(duration.isUnknown());
+					if (!timeSlider.isDisabled() && duration.greaterThan(Duration.ZERO)
+							&& !timeSlider.isValueChanging()) {
+						timeSlider.setValue(currentTime.divide(duration).toMillis() * 100.0);
+					}
+					if (!volumeSlider.isValueChanging()) {
+						volumeSlider.setValue((int) Math.round(mediaPlayer.getVolume() * 100));
+					}
+				}
+			});
+		}
+	}
+
+	private static String formatTime(Duration elapsed, Duration duration) {
+		int intElapsed = (int) Math.floor(elapsed.toSeconds());
+		int elapsedHours = intElapsed / (60 * 60);
+		if (elapsedHours > 0) {
+			intElapsed -= elapsedHours * 60 * 60;
+		}
+		int elapsedMinutes = intElapsed / 60;
+		int elapsedSeconds = intElapsed - elapsedHours * 60 * 60 - elapsedMinutes * 60;
+
+		if (duration.greaterThan(Duration.ZERO)) {
+			int intDuration = (int) Math.floor(duration.toSeconds());
+			int durationHours = intDuration / (60 * 60);
+			if (durationHours > 0) {
+				intDuration -= durationHours * 60 * 60;
+			}
+			int durationMinutes = intDuration / 60;
+			int durationSeconds = intDuration - durationHours * 60 * 60 - durationMinutes * 60;
+			if (durationHours > 0) {
+				return String.format("%d:%02d:%02d/%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds,
+						durationHours, durationMinutes, durationSeconds);
+			} else {
+				return String.format("%02d:%02d/%02d:%02d", elapsedMinutes, elapsedSeconds, durationMinutes,
+						durationSeconds);
+			}
+		} else {
+			if (elapsedHours > 0) {
+				return String.format("%d:%02d:%02d", elapsedHours, elapsedMinutes, elapsedSeconds);
+			} else {
+				return String.format("%02d:%02d", elapsedMinutes, elapsedSeconds);
+			}
+		}
+	}
+
+}

@@ -1,0 +1,22 @@
+package tds.um.modelo;
+
+public class NoDescuento extends Descuento {
+
+	private static final long serialVersionUID = 1L;
+
+	public NoDescuento() {
+		this.tipoDescuento = "NoDescuento";
+	}
+
+	public String calcularPrecio(float precioApp) {
+		return "No existe descuento";
+	}
+
+	@Override
+	public String toString() {
+		return "NoDescuento";
+	}
+	
+	
+
+}

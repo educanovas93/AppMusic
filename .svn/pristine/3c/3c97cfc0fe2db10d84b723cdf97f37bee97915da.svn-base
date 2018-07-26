@@ -1,0 +1,77 @@
+package tds.um.modelo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import tds.um.persistencia.DAOException;
+import tds.um.persistencia.FactoriaDAO;
+import tds.um.persistencia.IAdaptadorCancionDAO;
+import tds.um.persistencia.IAdaptadorUsuarioDAO;
+
+public class CatalogoCanciones {
+
+	/*
+	 * Tenemos que crear dos metodos: 1º Devuelva una lista con las canciones de un
+	 * interprete. 2º Devuelva una lista con las cancions de un estilo musical
+	 */
+
+	// Mapa con unico usuario
+	private Map<String, Cancion> canciones;
+	private static CatalogoCanciones unicaInstancia = new CatalogoCanciones();
+
+	private FactoriaDAO factoriaDao;
+	private IAdaptadorCancionDAO adapatadorCancion;
+
+	// Constructor de clase sin parametro
+	private CatalogoCanciones() {
+		canciones = new HashMap<String, Cancion>();
+
+		try {
+			factoriaDao = FactoriaDAO.getInstancia(FactoriaDAO.DAO_TDS);
+
+			@SuppressWarnings("unchecked")
+			List<Cancion> canciones = (List<Cancion>) factoriaDao.getCancionDAO().recuperarTodasCanciones();
+			for (Cancion cancion : canciones) {
+				this.canciones.put(cancion.getTitulo(), cancion);
+			}
+		} catch (DAOException eDAO) {
+			eDAO.printStackTrace();
+		}
+	}
+
+	// Metodo get del Catalogo
+	public static CatalogoCanciones getCatalogoCanciones() {
+		return unicaInstancia;
+	}
+
+	// Devuelve todos las canciones
+	public List<Cancion> getCanciones() {
+		ArrayList<Cancion> lista = new ArrayList<Cancion>();
+		for (Cancion cancion : canciones.values()) {
+			lista.add(cancion);
+		}
+		return lista;
+	}
+
+	// Devuelve una cancion en particular
+	public Cancion getCancion(int codigo) {
+		for (Cancion cancion : canciones.values()) {
+			if (cancion.getId() == codigo)
+				return cancion;
+		}
+		return null;
+	}
+
+	public void addCancion(Cancion cancion) {
+		canciones.put(cancion.getTitulo(),cancion);
+	}
+	
+	public void remove(Cancion cancion) {
+		canciones.remove(cancion.getTitulo());
+	}
+		
+
+}

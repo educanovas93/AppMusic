@@ -1,0 +1,119 @@
+
+.next {
+	-fx-image: url(imagenes/next-1.png);
+}
+
+
+.next:hover {
+    -fx-image: url(imagenes/next-hover.png);
+    
+}
+
+.next:pressed{
+	
+	-fx-image: url(imagenes/next-1.png);
+}
+
+.play {
+	-fx-image: url(imagenes/play-button.png);
+}
+
+
+.play:hover {
+    -fx-image: url(imagenes/play-hover.png);
+    
+}
+
+.play:pressed{
+	
+	-fx-image: url(imagenes/play-button-pressed.png);
+}
+
+
+.stop {
+	-fx-image: url(imagenes/stop.png);
+}
+
+
+.stop:hover {
+    -fx-image: url(imagenes/stop-hover.png);
+    
+}
+
+.stop:pressed{
+	
+	-fx-image: url(imagenes/stop.png);
+}
+
+.replay {
+	-fx-image: url(imagenes/replay.png);
+}
+
+
+.replay:hover {
+    -fx-image: url(imagenes/replay-hover.png);
+    
+}
+
+.replay:pressed{
+	
+	-fx-image: url(imagenes/replay.png);
+}
+
+.pause {
+	-fx-image: url(imagenes/pause.png);
+}
+
+
+.pause:hover {
+    -fx-image: url(imagenes/pause-hover.png);
+    
+}
+
+.pause:pressed{
+	
+	-fx-image: url(imagenes/pause-button-pressed.png);
+}
+
+.muted {
+	-fx-image: url(imagenes/muted.png);
+}
+
+
+.muted:hover {
+    -fx-image: url(imagenes/muted-hover.png);
+    
+}
+
+.muted:pressed{
+	
+	-fx-image: url(imagenes/muted.png);
+}
+
+.unmuted {
+	-fx-image: url(imagenes/unmuted.png);
+}
+
+
+.unmuted:hover {
+    -fx-image: url(imagenes/unmuted-hover.png);
+    
+}
+
+.unmuted:pressed{
+	
+	-fx-image: url(imagenes/unmuted.png);
+}
+
+.grid {
+	
+		/*-fx-background-color: #262626;*/
+		
+		-fx-background-color:
+    linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+    linear-gradient(#020b02, #3a3a3a),
+    linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+    linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%);
+
+}
+

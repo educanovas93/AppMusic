@@ -1,0 +1,6 @@
+package tds.um.componente;
+
+public interface CancionesListener {
+	public void nuevasCanciones(CancionesEvento evento);
+
+}

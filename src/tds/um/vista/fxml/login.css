@@ -1,0 +1,28 @@
+.jfx-date-picker .input-line {
+    -fx-background-color: white;
+}
+.jfx-date-picker .input-focused-line {
+    -fx-background-color: #2a9626;
+}
+
+.jfx-dialog .button {
+	-fx-background-color:  #1DB954;
+	-fx-background-radius: 30;
+	-fx-text-fill: white;
+	
+}
+
+.jfx-date-picker .text-field {
+   	-fx-prompt-text-fill: #c3c3c3;
+   	-fx-text-fill: #c3c3c3;
+}
+
+.button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.button:pressed {
+    -fx-scale-y: 1;
+    -fx-scale-x: 1;
+}

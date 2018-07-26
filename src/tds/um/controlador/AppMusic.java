@@ -1,0 +1,345 @@
+package tds.um.controlador;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import cargadorcanciones.BuscadorCanciones;
+import cargadorcanciones.CancionesEvento;
+import cargadorcanciones.CancionesListener;
+import tds.um.modelo.Cancion;
+import tds.um.modelo.CatalogoCanciones;
+import tds.um.modelo.CatalogoUsuario;
+import tds.um.modelo.Interprete;
+import tds.um.modelo.ListaCanciones;
+import tds.um.modelo.Usuario;
+import tds.um.persistencia.FactoriaDAO;
+import tds.um.persistencia.IAdaptadorCancionDAO;
+import tds.um.persistencia.IAdaptadorListaCancionesDAO;
+import tds.um.persistencia.IAdaptadorUsuarioDAO;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+
+
+public class AppMusic {
+	public static final double PRECIO_APP = 10.0;
+	private static AppMusic unicaInstancia;
+	private FactoriaDAO factoriaDAO;
+	private IAdaptadorListaCancionesDAO listasDAO;
+	private IAdaptadorUsuarioDAO usuarioDAO;
+	private IAdaptadorCancionDAO cancionDAO;
+	private BuscadorCanciones buscador;
+	private int cancionesXMLAdded;
+
+	Usuario currentUser;
+
+	private AppMusic() {
+		currentUser = null;
+		cancionesXMLAdded = 0;
+		factoriaDAO = FactoriaDAO.getInstancia();
+		listasDAO = factoriaDAO.getListaCancionesDAO();
+		usuarioDAO = factoriaDAO.getUsuarioDAO();
+		cancionDAO = factoriaDAO.getCancionDAO();
+		buscador = new BuscadorCanciones();
+		CatalogoCanciones.getUnicaInstancia();
+		CatalogoUsuario.getUnicaInstancia();
+		
+		buscador.addCancionesListener(new CancionesListener() {
+			
+			@Override
+			public void nuevasCanciones(CancionesEvento evento) {
+				cancionesXMLAdded = 0;
+				for (cargadorcanciones.Cancion cancion : evento.getNewCanciones().getCancion()) {
+					Cancion can = new Cancion(cancion.getTitulo(),cancion.getURL(),cancion.getEstilo(),new Interprete(cancion.getInterprete()));
+					if(!CatalogoCanciones.getUnicaInstancia().contieneCancion(can)) {
+						cancionDAO.registrarCancion(can);
+						CatalogoCanciones.getUnicaInstancia().addCancion(can);
+						cancionesXMLAdded++;
+					}
+				}
+			}
+		});
+	}
+	
+	public static AppMusic getUnicaInstancia() {
+		if (unicaInstancia == null) {
+			unicaInstancia = new AppMusic();
+		}
+		return unicaInstancia;
+	}
+	
+	public int getCancionesXMLAdded() {
+		return this.cancionesXMLAdded;
+	}
+	
+	public void cambiarArchivoComponente(String rutaXml) {
+		buscador.setArchivo(rutaXml);
+	}
+
+	public List<Cancion> cargarCatalogoCanciones(String ruta) {
+		recorrerCarpeta(new File(ruta));
+		return CatalogoCanciones.getUnicaInstancia().getCanciones();
+	}
+
+	
+	public void recorrerCarpeta(File rutaCarpeta) {
+
+		File listaFicheros[] = rutaCarpeta.listFiles();
+
+		if (listaFicheros == null)
+			System.err.println("No hay ficheros en el directorio especificado");
+		else {
+			// Recorrer la carpeta.
+			for (File fichero : listaFicheros) {
+				if (fichero.isDirectory()) {
+					recorrerCarpeta(fichero);
+				} else if(!fichero.getName().equals("Icon") && !fichero.getName().equals(".DS_Store")){
+					
+					// Tratamiento de la cancion.
+					String rutaFichero = fichero.getAbsolutePath();
+					String nombreFichero = fichero.getName();
+					String sinExt[] = nombreFichero.split("\\.");
+					String todo = sinExt[0];
+					String String = fichero.getParentFile().getName();
+					String datos[] = todo.split("-");
+					String interprete = datos[0].trim();
+					String titulo = datos[1].trim();			
+					Cancion c = new Cancion(titulo, rutaFichero, String, new Interprete(interprete));
+					if(!CatalogoCanciones.getUnicaInstancia().contieneCancion(c)) {
+						cancionDAO.registrarCancion(c);
+						CatalogoCanciones.getUnicaInstancia().addCancion(c);
+					}
+				}
+			}
+		}
+	}
+
+	public List<String> getEstilos() {
+		return CatalogoCanciones.getUnicaInstancia().getEstilos().stream().collect(Collectors.toList());
+	}
+
+	public List<Cancion> busquedaCanciones(String titulo, String interprete, String estilo) {
+		return CatalogoCanciones.getUnicaInstancia().busquedaCanciones(titulo,interprete,estilo);
+	}
+
+	public List<ListaCanciones> recuperarListasUsuario(Usuario usuario) {
+
+		return currentUser.getListasReproduccion();
+	}
+
+	public void cambiarAvatar(Usuario usuario,String avatar) {
+		usuario.setRutaAvatar(avatar);
+		usuarioDAO.modificarUsuario(usuario);
+	}
+	
+	public void addCancionesCatalogo(List<Cancion> canciones) {
+		for (Cancion cancion2 : canciones) {
+			cancionDAO.registrarCancion(cancion2);
+		}
+		CatalogoCanciones.getUnicaInstancia().addCancionesCatalogo(canciones);
+	}
+	
+	public boolean login(String nick, String password) {
+		Usuario ul = CatalogoUsuario.getUnicaInstancia().getUsuario(nick);
+		if (ul != null && ul.getPassword().equals(password)) {
+			currentUser = ul;
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean login(String nick,String password,String urlAvatar) {
+		if(login(nick,password)) {
+			if(urlAvatar != null) {
+				cambiarAvatar(this.currentUser,urlAvatar);
+			}
+			return true;
+		}else return false;
+	}
+	 
+	public boolean isBirthday(Usuario usuario) {
+	    LocalDate today = LocalDate.now();
+	    LocalDate dob = usuario.getFechaNacimiento();
+	    if(today.getDayOfYear() == dob.getDayOfYear()) {
+	    	return true;
+	    }else return false;
+
+	}
+	
+	public void mejorarCuenta(Usuario usuario) {
+		usuario.setPremium(true);
+		usuarioDAO.modificarUsuario(usuario);
+	}
+	
+	public void cancelarSuscripcion(Usuario usuario) {
+		usuario.setPremium(false);
+		usuarioDAO.modificarUsuario(usuario);
+	}
+	
+	public void generarPdf(Usuario usuario,String ruta) {
+		Document pdf = new Document(PageSize.A4, 35, 30, 50, 50);
+		FileOutputStream fos = null;
+		Font fuenteTitulo = FontFactory.getFont(FontFactory.TIMES_ROMAN, 20);
+		Font fuenteLista = FontFactory.getFont(FontFactory.COURIER, 15);
+		fuenteLista.setColor(BaseColor.BLUE);
+		try {
+			fos = new FileOutputStream(ruta + "/playlists"+usuario.getNickUsuario()+".pdf");
+			PdfWriter.getInstance(pdf, fos);
+			pdf.open();
+		
+			Paragraph p1 = new Paragraph();
+			p1.add(new Phrase("Listas de Reproduccion de "+usuario.getNombre()+" "+usuario.getApellidos(), fuenteTitulo));
+			p1.add(new Phrase(Chunk.NEWLINE));
+			p1.add(new Phrase(Chunk.NEWLINE));
+			p1.add(new Phrase("Nick : "+ usuario.getNickUsuario(), fuenteTitulo));
+			p1.add(new Phrase(Chunk.NEWLINE));
+			p1.add(new Phrase(Chunk.NEWLINE));
+			pdf.add(p1);
+			for (ListaCanciones lista : usuario.getListasReproduccion()) {
+				PdfPTable tabla = new PdfPTable(3);
+				Paragraph p2 = new Paragraph();
+				p2.add(new Phrase("Playlist : " + lista.getNombreLista(), fuenteLista));
+				p2.add(new Phrase(Chunk.NEWLINE));
+				p2.add(new Phrase(Chunk.NEWLINE));
+				pdf.add(p2);
+				if (!lista.getCanciones().isEmpty()) {
+					tabla.addCell("Interprete");
+					tabla.addCell("Titulo");
+					tabla.addCell("Estilo");
+					for (Cancion cancion : lista.getCanciones()) {
+						tabla.addCell(cancion.getInterprete().getNombre());
+						tabla.addCell(cancion.getTitulo());
+						tabla.addCell(cancion.getEstiloMusical());
+					}
+				}
+				pdf.add(tabla);
+				Paragraph p3 = new Paragraph();
+				p3.add(new Phrase(Chunk.NEWLINE));
+				pdf.add(p3);
+			}
+
+			pdf.close();
+			fos.close();
+
+		} catch (IOException | DocumentException e) {
+		
+		}	
+	}
+	
+	public boolean loginFB(String nombre,String password,String urlAvatar) {
+		String[] parts = nombre.split(" ");
+		String nombreU = parts[0];
+		String apellidoU = parts[1];
+		String nick = nombreU+apellidoU;
+		if(!isRegistrado(nick)) {
+			LocalDate today = LocalDate.now();
+			registrarUsuario(nombreU, apellidoU, nombreU+apellidoU+"@facebook.com", nick, password,today,urlAvatar);
+			return login(nick,password);
+		}else {
+			return login(nick,password,urlAvatar);
+		}
+	}
+	
+
+	public void cerrarSesion() {
+		this.currentUser = null;
+	}
+
+	public Usuario getCurrentUser() {
+		return this.currentUser;
+	}
+
+	public void addNumReproducciones(Cancion cancion) {
+		cancion.addNumReproducciones();
+		cancionDAO.modificarCancion(cancion);
+	}
+	
+	public List<Cancion> getMasReproducidas(){
+		return CatalogoCanciones.getUnicaInstancia().getMasReproducidas();
+	}
+	
+	public List<Cancion> getCancionesRecientes(Usuario usuario) {
+		return usuario.getRecientes();
+	}
+
+	public boolean isRegistrado(String nickName) {
+		return CatalogoUsuario.getUnicaInstancia().getUsuario(nickName) != null;
+	}
+
+	public boolean registrarUsuario(String nombre, String apellidos, String email, String nickUsuario, String password,
+			LocalDate fechaNacimiento,String rutaAvatar) {
+		if (isRegistrado(nickUsuario)) {
+			return false;
+		}
+
+		Usuario usuario = new Usuario(nombre, apellidos, email, nickUsuario, password, fechaNacimiento);
+		if(rutaAvatar != null) {
+			usuario.setRutaAvatar(rutaAvatar);
+		}
+		usuarioDAO.registrarUsuario(usuario);
+		CatalogoUsuario.getUnicaInstancia().addUsuario(usuario);
+		return true;
+	}
+	
+	public void eliminarCuenta(Usuario usuario) {
+		CatalogoUsuario.getUnicaInstancia().remove(usuario);
+		usuarioDAO.borrarUsuario(usuario);
+		for(ListaCanciones lista : usuario.getListasReproduccion()) {
+			listasDAO.borrarListaCanciones(lista);
+		}
+	}
+	
+	public void addCancionRecientes(Usuario usuario,Cancion cancion) {
+		usuario.addRecientes(cancion);
+		usuarioDAO.modificarUsuario(usuario);
+	}
+	
+	private void actualizarLista(Usuario usuario,String nombreLista,List<Cancion> canciones) {
+		ListaCanciones lista = usuario.getListaByNombreLista(nombreLista);
+		lista.setCanciones(canciones);
+		listasDAO.modificarListaCanciones(lista);
+	}
+
+	private void crearLista(Usuario usuario,String nombreLista,List<Cancion> canciones)  {	
+		ListaCanciones lista = usuario.crearLista(nombreLista,canciones);
+		listasDAO.registrarListaCanciones(lista);
+		usuario.addListaCanciones(lista);
+		usuarioDAO.modificarUsuario(usuario);
+	}
+	
+	public void addCancionPlaylist(Usuario usuario ,Cancion cancion, ListaCanciones lista) {
+		usuario.addCancionPlayList(cancion,lista);
+		listasDAO.modificarListaCanciones(lista);
+	}
+	
+	public void eliminarCancionPlayList(Usuario usuario, Cancion cancion,ListaCanciones lista ) {
+		usuario.eliminarCancionPlayList(cancion,lista);
+		listasDAO.modificarListaCanciones(lista);
+	}
+
+	public void borrarListaCanciones(Usuario usuario ,ListaCanciones lista) {
+		usuario.borrarListaCanciones(lista);
+		usuarioDAO.modificarUsuario(usuario);
+		listasDAO.borrarListaCanciones(lista);
+	}
+	public void guardarLista(Usuario usuario ,String nombreLista,List<Cancion> canciones){
+		if(!usuario.existeLista(nombreLista)) {
+			crearLista(usuario,nombreLista,canciones);
+		}else {
+			actualizarLista(usuario,nombreLista,canciones);
+		}		
+	}
+}
